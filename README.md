@@ -4,20 +4,20 @@ INSTRUCTIONS:
 
 To compile:
 
-  $ g++ *.cpp -lSDL2 -lpthreads -o chess
+    $ g++ *.cpp -lSDL2 -lpthreads -o chess
 
   make sure you have SDL 2.0 installed, on linux the command is:
 
-  (Debian / Ubuntu) $ sudo apt-get install libsdl2-dev
+    (Debian / Ubuntu) $ sudo apt-get install libsdl2-dev
 
-  (Arch) $ sudo pacman -S sdl2
+    (Arch) $ sudo pacman -S sdl2
 
-  (Other) $ google it please
+    (Other) $ google it please
 
 
 To run:
 
-  ./chess [-r]
+    ./chess [-r]
 
   the -r option will rotate the board when it's black's turn, so
   both players will be playing from the bottom.
