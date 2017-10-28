@@ -10,9 +10,9 @@ To compile:
 
     (Debian / Ubuntu) $ sudo apt-get install libsdl2-dev
 
-    (Arch) $ sudo pacman -S sdl2
+    (Arch)            $ sudo pacman -S sdl2
 
-    (Other) $ google it please
+    (Other)           $ google it please
 
 
 To run:
