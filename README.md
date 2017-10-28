@@ -4,7 +4,7 @@ INSTRUCTIONS:
 
 To compile:
 
-    $ g++ *.cpp -lSDL2 -lpthreads -o chess
+    $ g++ *.cpp -lSDL2 -lpthread -o chess
 
   make sure you have SDL 2.0 installed, on linux the command is:
 
