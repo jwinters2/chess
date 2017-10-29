@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-Board::Board():board_width(8),board_height(8),playerToMove(White)
+Board::Board():board_width(8),board_height(8),playerToMove(White),turn(1)
 {
   board = new Square**[board_width];
   for(int x=0; x<board_width; x++)
@@ -186,6 +186,7 @@ void Board::switchPlayer()
   {
     playerToMove = White;
   }
+  turn++;
 }
 
 bool Board::parseNotation(std::string notation,int* begin,int* end)
@@ -269,4 +270,9 @@ Square* Board::at(int x,int y) const
 Player Board::getPlayerToMove() const
 {
   return playerToMove;
+}
+
+int Board::getTurn() const
+{
+  return turn;
 }

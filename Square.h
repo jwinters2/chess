@@ -9,6 +9,7 @@ class Square
     Player player; 
     Color color;
     bool hasMoved;
+    int enPassantTurn;
 
   public:
     Square(Piece,Player,Color);
@@ -18,10 +19,12 @@ class Square
     Player getPlayer() const;
     Color getColor() const;
     bool getHasMoved() const;
+    int getEnPassantTurn() const;
 
     void setPiece(Piece);
     void setPlayer(Player);
     void setColor(Color);
+    void setEnPassantTurn(int);
 
     bool render() const;
 

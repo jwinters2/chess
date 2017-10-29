@@ -4,10 +4,8 @@
 #include "Square.h"
 #include "Board.h"
 
-#include <iostream>
-
 bool PieceLogic::isMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (Board* board,Square* s,const int* begin,const int* end)
 {
   if(s == nullptr)
   {
@@ -34,7 +32,7 @@ bool PieceLogic::isMoveValid
 }
 
 bool PieceLogic::isPawnMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (Board* board,Square* s,const int* begin,const int* end)
 {
   int direction;
   if(s->getPlayer() == White)
@@ -47,24 +45,47 @@ bool PieceLogic::isPawnMoveValid
     direction = -1;
   }
 
-  // a movement one square forward is valid
+  // a movement one square forward is valid if unoccuppied
   if(begin[0] == end[0] && begin[1] + direction == end[1])
   {
-    return true;
+    if(board->at(begin[0],begin[1]+direction)->getPiece() == Empty)
+    {
+      return true;
+    }
   }
 
   // pawns can move 2 if they haven't moved before
   if(begin[0] == end[0] && begin[1] + (2*direction) == end[1] 
   && !s->getHasMoved())
   {
-    return true;
+    if(board->at(begin[0],begin[1] + (2*direction))->getPiece() == Empty)
+    {
+      board->at(end)->setEnPassantTurn(board->getTurn());
+      return true;
+    }
   }
 
   // pawns can move diagonally when capturing (ending square is not empty)
-  if( (begin[0] + 1 == end[0] || begin[0] - 1 == end[0] )
-  && begin[1] + direction == end[1] && board->at(end)->getPiece() != Empty)
+  for(int side = -1; side <= 1; side +=2 )
   {
-    return true;
+    if( begin[0] + side == end[0] && begin[1] + direction == end[1] )
+    {
+      // if our destination isn't empty, we're about to capture a piece
+      if(board->at(end)->getPiece() != Empty)
+      {
+        return true;
+      }
+      // if it is empty, but there's an en-passant pawn directly to our side
+      else if(board->at(begin[0] + side,begin[1])->getEnPassantTurn() 
+              == board->getTurn() - 1)
+      {
+        Square* toClear = board->at(begin[0] + side,begin[1]);
+        toClear->setPiece(Empty);
+        toClear->setPlayer(None);
+        toClear->setEnPassantTurn(-1);
+        return true;
+      }
+    }
   }
 
   return false;
@@ -142,8 +163,6 @@ bool PieceLogic::isRookMoveValid
   {
     dy = 0;
   }
-
-  std::cerr << "[dx,dy] = [" << dx << "," << dy << "]" << std::endl;
 
   int cursor[2] = {begin[0] + dx,begin[1] + dy};
 

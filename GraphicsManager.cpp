@@ -3,9 +3,11 @@
 #include "Board.h"
 #include "Square.h"
 #include "Enums.h"
+#include "BoardUtils.h"
 
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 
 const Board* GraphicsManager::lastBoard = nullptr;
 bool GraphicsManager::childShouldTerminate = false;
@@ -165,10 +167,20 @@ void GraphicsManager::renderBoardCS(const Board* board)
   {
     playerToMove = "Black to move";
   }
+  
+  std::string statusText = "";
 
-  renderString(playerToMove,
+  statusText += std::to_string( (1 + board->getTurn()) / 2 );
+  statusText += " ";
+  statusText += std::to_string(BoardUtils::getBoardScore(board).front() % 100);
+  statusText += ":";
+  statusText += std::to_string(BoardUtils::getBoardScore(board).back() % 100);
+  statusText += " ";
+  statusText += playerToMove;
+
+  renderString(statusText,
                (border_size * 2) + (square_size * 8) - 
-               (playerToMove.size() * text_spacing),
+               (statusText.size() * text_spacing),
                (border_size * 3) + (square_size * 8) + 
                (textbox_size / 2) - (text_height / 2) );
 
@@ -242,15 +254,16 @@ void GraphicsManager::renderSquare
     {
       renderTexture(selection_red,pos);
     }
-  }
 
-  if(text.size() >= 5)
-  {
-    int text_x = text.at(3) - 'a';
-    int text_y = text.at(4) - '1';
-    if(text_x == x && text_y == y)
+    if(text.size() >= 5)
     {
-      renderTexture(selection_blue,pos);
+      int text_x_end = text.at(3) - 'a';
+      int text_y_end = text.at(4) - '1';
+      if(text_x_end == x && text_y_end == y &&
+       !(text_x == text_x_end && text_y == text_y_end))
+      {
+        renderTexture(selection_blue,pos);
+      }
     }
   }
   

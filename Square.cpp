@@ -3,7 +3,7 @@
 #include <iostream>
 
 Square::Square(Piece pi,Player pl,Color c):
-               piece(pi),player(pl),color(c),hasMoved(false)
+               piece(pi),player(pl),color(c),hasMoved(false),enPassantTurn(-1)
 {
 }
 
@@ -31,6 +31,11 @@ bool Square::getHasMoved() const
   return hasMoved;
 }
 
+int Square::getEnPassantTurn() const
+{
+  return enPassantTurn;
+}
+
 void Square::setPiece(Piece p)
 {
   piece = p;
@@ -44,6 +49,11 @@ void Square::setPlayer(Player p)
 void Square::setColor(Color c)
 {
   color = c;
+}
+
+void Square::setEnPassantTurn(int i)
+{
+  enPassantTurn = i;
 }
 
 bool Square::render() const
