@@ -13,20 +13,18 @@ std::vector<int> BoardUtils::getBoardScore(const Board* board)
 
   int whiteScore = 0;  
   int blackScore = 0;  
-  Square* s;
 
   for(int x=0; x<8; x++)
   {
     for(int y=0; y<8; y++)
     {
-      s = board->at(x,y);
-      if(s->getPlayer() == White)
+      if(board->getPlayer(x,y) == White)
       {
-        whiteScore += getPieceScore(s->getPiece());
+        whiteScore += getPieceScore(board->getPiece(x,y));
       }
       else
       {
-        blackScore += getPieceScore(s->getPiece());
+        blackScore += getPieceScore(board->getPiece(x,y));
       }
     }
   }
@@ -40,7 +38,25 @@ std::vector<int> BoardUtils::getBoardScore(const Board* board)
 
 std::vector<Move> BoardUtils::getPossibleMoves(const Board* board,Player player)
 {
-  return std::vector<Move>();
+  std::vector<Move> retval;
+  std::vector<Coord> temp;
+
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      if(board->getPlayer(x,y) == player)
+      {
+        temp = getPieceMoves(board,x,y);
+        for(auto it = temp.begin(); it != temp.end(); ++it)
+        {
+          retval.push_back(Move( x,y , it->x,it->y ));
+        }
+      }
+    }
+  }
+
+  return retval;
 }
 
 int BoardUtils::getPieceScore(Piece piece)
@@ -65,8 +81,7 @@ int BoardUtils::getPieceScore(Piece piece)
   return 0;
 }
 
-std::vector<Coord> BoardUtils::getPieceMoves
-                  (const Board* board,const Square* s,int s_x,int s_y)
+std::vector<Coord> BoardUtils::getPieceMoves(const Board* board,int s_x,int s_y)
 {
   std::vector<Coord> retval;
   int begin[2] = {s_x,s_y};
@@ -78,7 +93,7 @@ std::vector<Coord> BoardUtils::getPieceMoves
     {
       end[0] = x;
       end[1] = y;
-      if(PieceLogic::isMoveValid(board,s,begin,end,nullptr))
+      if(PieceLogic::isMoveValid(board,begin,end,nullptr))
       {
         retval.push_back(Coord(x,y));
       }

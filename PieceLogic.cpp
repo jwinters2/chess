@@ -5,63 +5,55 @@
 #include "Board.h"
 
 bool PieceLogic::isMoveValid
-     (const Board* board,const Square* s,
-      const int* begin,const int* end,bool* enpassant)
+     (const Board* board,const int* begin,const int* end,EnPassant* enpassant)
 {
-  if(s == nullptr)
-  {
-    return false;
-  }
-
   if(enpassant != nullptr)
   {
-    *enpassant = false;
+    *enpassant = NoPassant;
   }
 
   // check for valid coordinates
-  if(board->at(begin) == nullptr || board->at(end) == nullptr 
-  || (begin[0] == end[0] && begin[1] == end[1]))
+  if(begin[0] == end[0] && begin[1] == end[1])
   {
     return false;
   }
 
   // check if the player is moving their own piece (or a piece at all)
-  if(board->at(begin)->getPlayer() != board->getPlayerToMove())
+  if(board->getPlayer(begin) != board->getPlayerToMove())
   {
     return false;
   }
 
   // players can't capture their own pieces
-  if(board->at(end)->getPlayer() == board->getPlayerToMove())
+  if(board->getPlayer(end) == board->getPlayerToMove())
   {
     return false;
   }
 
-  switch(s->getPiece())
+  switch(board->getPiece(begin))
   {
     case Pawn:
-      return isPawnMoveValid   (board,s,begin,end,enpassant);
+      return isPawnMoveValid   (board,begin,end,enpassant);
     case Knight:
-      return isKnightMoveValid (board,s,begin,end);
+      return isKnightMoveValid (board,begin,end);
     case Bishop:
-      return isBishopMoveValid (board,s,begin,end);
+      return isBishopMoveValid (board,begin,end);
     case Rook:
-      return isRookMoveValid   (board,s,begin,end);
+      return isRookMoveValid   (board,begin,end);
     case Queen:
-      return isQueenMoveValid  (board,s,begin,end);
+      return isQueenMoveValid  (board,begin,end);
     case King:
-      return isKingMoveValid   (board,s,begin,end);
+      return isKingMoveValid   (board,begin,end);
     default:
       return false;
   }
 }
 
 bool PieceLogic::isPawnMoveValid
-     (const Board* board,const Square* s,
-      const int* begin,const int* end,bool* enpassant)
+     (const Board* board,const int* begin,const int* end,EnPassant* enpassant)
 {
   int direction;
-  if(s->getPlayer() == White)
+  if(board->getPlayer(begin) == White)
   {
     // white pawns must move up (y coord must increase)
     direction = 1;
@@ -74,7 +66,7 @@ bool PieceLogic::isPawnMoveValid
   // a movement one square forward is valid if unoccuppied
   if(begin[0] == end[0] && begin[1] + direction == end[1])
   {
-    if(board->at(begin[0],begin[1]+direction)->getPiece() == Empty)
+    if(board->getPiece(begin[0],begin[1]+direction) == Empty)
     {
       return true;
     }
@@ -82,11 +74,15 @@ bool PieceLogic::isPawnMoveValid
 
   // pawns can move 2 if they haven't moved before
   if(begin[0] == end[0] && begin[1] + (2*direction) == end[1] 
-  && !s->getHasMoved())
+  && !board->getHasMoved(begin))
   {
-    if(board->at(begin[0],begin[1] + (2*direction))->getPiece() == Empty)
+    if(board->getPiece(begin[0],begin[1] + (2*direction)) == Empty)
     {
-      board->at(end)->setEnPassantTurn(board->getTurn());
+      //board->setEnPassantTurn(end,board->getTurn());
+      if(enpassant != nullptr)
+      {
+        *enpassant = Moved;
+      }
       return true;
     }
   }
@@ -97,17 +93,17 @@ bool PieceLogic::isPawnMoveValid
     if( begin[0] + side == end[0] && begin[1] + direction == end[1] )
     {
       // if our destination isn't empty, we're about to capture a piece
-      if(board->at(end)->getPiece() != Empty)
+      if(board->getPiece(end) != Empty)
       {
         return true;
       }
       // if it is empty, but there's an en-passant pawn directly to our side
-      else if(board->at(begin[0] + side,begin[1])->getEnPassantTurn() 
+      else if(board->getEnPassantTurn(begin[0] + side,begin[1])
               == board->getTurn() - 1)
       {
         if(enpassant != nullptr)
         {
-          *enpassant = true;
+          *enpassant = Captured;
         }
         return true;
       }
@@ -118,7 +114,7 @@ bool PieceLogic::isPawnMoveValid
 }
 
 bool PieceLogic::isKnightMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end)
 {
   for(int dx = -1; dx <= 1; dx += 2)
   {
@@ -136,7 +132,7 @@ bool PieceLogic::isKnightMoveValid
 }
                 
 bool PieceLogic::isBishopMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end)
 {
   // bishop moves must be diagonal (dx == dy or dx == -dy)
   if(begin[0] - end[0] != begin[1] - end[1]
@@ -155,7 +151,7 @@ bool PieceLogic::isBishopMoveValid
   {
     // we hit a square occupied by a player, 
     // bishops can't move through other pieces
-    if(board->at(cursor)->getPlayer() != None)
+    if(board->getPlayer(cursor) != None)
     {
       return false;
     }
@@ -168,7 +164,7 @@ bool PieceLogic::isBishopMoveValid
 }
 
 bool PieceLogic::isRookMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end)
 {
   // rook moves must be orthogonal (dx == 0 or dy == 0)
   if(begin[0] != end[0] && begin[1] != end[1])
@@ -196,7 +192,7 @@ bool PieceLogic::isRookMoveValid
   {
     // we hit a square occupied by a player, 
     // rooks can't move through other pieces
-    if(board->at(cursor)->getPlayer() != None)
+    if(board->getPlayer(cursor) != None)
     {
       return false;
     }
@@ -209,14 +205,14 @@ bool PieceLogic::isRookMoveValid
 }
 
 bool PieceLogic::isQueenMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end)
 {
-  return (isBishopMoveValid(board,s,begin,end) 
-       || isRookMoveValid(board,s,begin,end));
+  return (isBishopMoveValid(board,begin,end) 
+       || isRookMoveValid(board,begin,end));
 }
 
 bool PieceLogic::isKingMoveValid
-     (const Board* board,const Square* s,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end)
 {
   for(int dx=-1; dx<=1; dx++)
   {

@@ -70,9 +70,9 @@ class GraphicsManager
     static SDL_Renderer* renderer;
     static SDL_Texture** tex;
 
-    static void renderSquare(const Square*,const SDL_Rect*);
+    static void renderSquare(const Board*,int,int,const SDL_Rect*);
     static void renderSelection(const Board*,std::string);
-    static void renderPiece(const Square*,const SDL_Rect*);
+    static void renderPiece(const Board*,int,int,const SDL_Rect*);
     static void renderTexture(Texture,const SDL_Rect*);
 
     static void renderString(std::string,int,int);

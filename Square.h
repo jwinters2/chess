@@ -12,6 +12,7 @@ class Square
     int enPassantTurn;
 
   public:
+    Square();
     Square(Piece,Player,Color);
     ~Square();
 
@@ -28,5 +29,7 @@ class Square
 
     bool render() const;
 
-    static void movePiece(Square*,Square*);
+    static void movePiece(Square&,Square&);
+
+    void makeIntoCopyOf(const Square&);
 };

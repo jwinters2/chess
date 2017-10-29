@@ -2,6 +2,11 @@
 
 #include <iostream>
 
+Square::Square():piece(Empty),player(None),color(WhiteSquare),
+                 hasMoved(false),enPassantTurn(-1)
+{
+}
+
 Square::Square(Piece pi,Player pl,Color c):
                piece(pi),player(pl),color(c),hasMoved(false),enPassantTurn(-1)
 {
@@ -95,17 +100,23 @@ bool Square::render() const
   return true;
 }
 
-void Square::movePiece(Square* begin,Square* end)
+void Square::movePiece(Square& begin,Square& end)
 {
-  if(begin != nullptr && end != nullptr)
-  {
-    end->setPiece (begin->getPiece ());
-    end->setPlayer(begin->getPlayer());
+  end.setPiece (begin.getPiece ());
+  end.setPlayer(begin.getPlayer());
 
-    begin->setPiece (Empty);
-    begin->setPlayer(None);
+  begin.setPiece (Empty);
+  begin.setPlayer(None);
 
-    end->hasMoved = true;
-    begin->hasMoved = false;
-  }
+  end.hasMoved = true;
+  begin.hasMoved = false;
+}
+
+void Square::makeIntoCopyOf(const Square& other)
+{
+  piece = other.piece;
+  player = other.player;
+  color = other.color;
+  hasMoved = other.hasMoved;
+  enPassantTurn = other.enPassantTurn;
 }

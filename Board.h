@@ -1,17 +1,16 @@
 #pragma once
 
 #include "Enums.h"
+#include "Square.h"
 
 #include <string>
-
-class Square;
 
 class GraphicsManager;
 
 class Board
 {
   private:
-    Square*** board;
+    Square board[8][8];
 
     const int board_width;
     const int board_height;
@@ -22,8 +21,11 @@ class Board
     int move_begin[2];
     int move_end[2];
 
-    bool parseNotation(std::string,int*,int*,bool*);
+    bool parseNotation(std::string,int*,int*,EnPassant*);
     void switchPlayer();
+
+    Square& at(const int*);
+    Square& at(int,int);
 
   public:
     Board();
@@ -34,8 +36,29 @@ class Board
     bool move(std::string);
     Player getPlayerToMove() const;
 
-    Square* at(const int*) const;
-    Square* at(int,int) const;
+    Piece getPiece(int,int) const;
+    Player getPlayer(int,int) const;
+    Color getColor(int,int) const;
+    bool getHasMoved(int,int) const;
+    int getEnPassantTurn(int,int) const;
+
+    void setPiece(int,int,Piece);
+    void setPlayer(int,int,Player);
+    void setColor(int,int,Color);
+    void setEnPassantTurn(int,int,int);
+
+    Piece getPiece(const int*) const;
+    Player getPlayer(const int*) const;
+    Color getColor(const int*) const;
+    bool getHasMoved(const int*) const;
+    int getEnPassantTurn(const int*) const;
+
+    void setPiece(const int*,Piece);
+    void setPlayer(const int*,Player);
+    void setColor(const int*,Color);
+    void setEnPassantTurn(const int*,int);
+
+    bool areValidCoordinates(int,int) const;
 
     int getTurn() const;
 };

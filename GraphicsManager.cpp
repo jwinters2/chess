@@ -194,7 +194,7 @@ void GraphicsManager::renderBoardCS(const Board* board)
       pos.x = xGridToCoord(x);
       pos.y = yGridToCoord(y);
 
-      renderSquare(board->at(x,y),&pos);
+      renderSquare(board,x,y,&pos);
     }
   }
 
@@ -211,7 +211,7 @@ void GraphicsManager::renderBoardCS(const Board* board)
       pos.x = xGridToCoord(x);
       pos.y = yGridToCoord(y);
 
-      renderPiece(board->at(x,y),&pos);
+      renderPiece(board,x,y,&pos);
     }
   }
 
@@ -262,9 +262,10 @@ bool GraphicsManager::setRotateOnBlack(bool r)
   rotateOnBlack = r;
 }
 
-void GraphicsManager::renderSquare(const Square* square,const SDL_Rect* pos)
+void GraphicsManager::renderSquare
+                     (const Board* board,int x,int y,const SDL_Rect* pos)
 {
-  if(square->getColor() == WhiteSquare)
+  if(board->getColor(x,y) == WhiteSquare)
   {
     renderTexture(white_square,pos);
   }
@@ -291,7 +292,7 @@ void GraphicsManager::renderSelection(const Board* board,std::string text)
     renderTexture(selection_red,&pos);
 
     std::vector<Coord> possibleMoves = 
-    BoardUtils::getPieceMoves(board,board->at(text_x,text_y),text_x,text_y);
+    BoardUtils::getPieceMoves(board,text_x,text_y);
 
     for(auto it = possibleMoves.begin(); it != possibleMoves.end(); ++it)
     {
@@ -317,12 +318,13 @@ void GraphicsManager::renderSelection(const Board* board,std::string text)
   }
 }
 
-void GraphicsManager::renderPiece(const Square* square,const SDL_Rect* pos)
+void GraphicsManager::renderPiece
+                      (const Board* board,int x,int y,const SDL_Rect* pos)
 { 
-  if(square->getPiece() != Empty)
+  if(board->getPiece(x,y) != Empty)
   {
     int tex_id = white_pawn;
-    switch(square->getPiece())
+    switch(board->getPiece(x,y))
     {
       case Pawn:
         tex_id = white_pawn;
@@ -344,7 +346,7 @@ void GraphicsManager::renderPiece(const Square* square,const SDL_Rect* pos)
         break;
     }
 
-    if(square->getPlayer() == Player::Black)
+    if(board->getPlayer(x,y) == Player::Black)
     {
       tex_id += (black_pawn - white_pawn);
     }
