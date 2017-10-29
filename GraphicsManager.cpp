@@ -100,8 +100,9 @@ bool GraphicsManager::init()
   loadTexture(black_queen, "black_queen");
   loadTexture(black_king,  "black_king");
 
-  loadTexture(selection_red,  "selection_red");
-  loadTexture(selection_blue, "selection_blue");
+  loadTexture(selection_red,    "selection_red");
+  loadTexture(selection_blue,   "selection_blue");
+  loadTexture(selection_circle, "selection_circle");
 
   pthread_create(&render_tid,NULL,renderInThread,NULL);
   pthread_create(&event_tid,NULL,handleEvents,NULL);
@@ -184,16 +185,33 @@ void GraphicsManager::renderBoardCS(const Board* board)
                (border_size * 3) + (square_size * 8) + 
                (textbox_size / 2) - (text_height / 2) );
 
-  // render the pieces
+  // render the squares
   for(int x=0; x<8; x++)
   {
     for(int y=0; y<8; y++)
     {
       // shifted right a bit to make space for row numbers
-      pos.x = (border_size*2) + (   rotate(x)  * square_size);
-      pos.y =  border_size    + ((7-rotate(y)) * square_size);
+      pos.x = xGridToCoord(x);
+      pos.y = yGridToCoord(y);
 
-      renderSquare(board->at(x,y),&pos,text,x,y);
+      renderSquare(board->at(x,y),&pos);
+    }
+  }
+
+  // render the selection
+  // (the squares that highlight when a command is being typed)
+  renderSelection(board,text);
+
+  // render the actual pieces
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      // shifted right a bit to make space for row numbers
+      pos.x = xGridToCoord(x);
+      pos.y = yGridToCoord(y);
+
+      renderPiece(board->at(x,y),&pos);
     }
   }
 
@@ -229,13 +247,22 @@ int GraphicsManager::rotate(int a)
   }
 }
 
+int GraphicsManager::xGridToCoord(int x)
+{
+  return (border_size*2) + ( rotate(x) * square_size);
+}
+
+int GraphicsManager::yGridToCoord(int y)
+{
+  return border_size + ((7-rotate(y)) * square_size);
+}
+
 bool GraphicsManager::setRotateOnBlack(bool r)
 {
   rotateOnBlack = r;
 }
 
-void GraphicsManager::renderSquare
-     (const Square* square,const SDL_Rect* pos,std::string text,int x,int y)
+void GraphicsManager::renderSquare(const Square* square,const SDL_Rect* pos)
 {
   if(square->getColor() == WhiteSquare)
   {
@@ -245,30 +272,53 @@ void GraphicsManager::renderSquare
   {
     renderTexture(black_square,pos);
   }
+}
 
+void GraphicsManager::renderSelection(const Board* board,std::string text)
+{
   if(text.size() >= 2)
   {
+    SDL_Rect pos;
+    pos.w = square_size;
+    pos.h = square_size;
+
     int text_x = text.at(0) - 'a';
     int text_y = text.at(1) - '1';
-    if(text_x == x && text_y == y)
+
+    pos.x = xGridToCoord(text_x);
+    pos.y = yGridToCoord(text_y);
+
+    renderTexture(selection_red,&pos);
+
+    std::vector<Coord> possibleMoves = 
+    BoardUtils::getPieceMoves(board,board->at(text_x,text_y),text_x,text_y);
+
+    for(auto it = possibleMoves.begin(); it != possibleMoves.end(); ++it)
     {
-      renderTexture(selection_red,pos);
+      //std::cout << (char)(it->x + 'a') << (char)(it->y + '1') << std::endl;
+      pos.x = xGridToCoord(it->x);
+      pos.y = yGridToCoord(it->y);
+
+      renderTexture(selection_circle,&pos);
     }
 
     if(text.size() >= 5)
     {
       int text_x_end = text.at(3) - 'a';
       int text_y_end = text.at(4) - '1';
-      if(text_x_end == x && text_y_end == y &&
-       !(text_x == text_x_end && text_y == text_y_end))
+      if(text_x != text_x_end || text_y != text_y_end)
       {
-        renderTexture(selection_blue,pos);
+        pos.x = xGridToCoord(text_x_end);
+        pos.y = yGridToCoord(text_y_end);
+
+        renderTexture(selection_blue,&pos);
       }
     }
   }
-  
-  if(square->getPiece() != Empty)
-  
+}
+
+void GraphicsManager::renderPiece(const Square* square,const SDL_Rect* pos)
+{ 
   if(square->getPiece() != Empty)
   {
     int tex_id = white_pawn;

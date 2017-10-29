@@ -9,7 +9,7 @@ class PieceLogic
     PieceLogic();
 
     static bool isPawnMoveValid
-                (Board*,Square*,const int*,const int*);
+                (const Board*,const Square*,const int*,const int*,bool*);
 
     static bool isKnightMoveValid
                 (const Board*,const Square*,const int*,const int*);
@@ -27,5 +27,5 @@ class PieceLogic
                 (const Board*,const Square*,const int*,const int*);
   public:
     static bool isMoveValid
-                (Board*,Square*,const int*,const int*);
+                (const Board*,const Square*,const int*,const int*,bool*);
 };

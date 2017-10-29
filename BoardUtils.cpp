@@ -2,6 +2,7 @@
 
 #include "Board.h"
 #include "Square.h"
+#include "PieceLogic.h"
 
 std::vector<int> BoardUtils::getBoardScore(const Board* board)
 {
@@ -64,7 +65,25 @@ int BoardUtils::getPieceScore(Piece piece)
   return 0;
 }
 
-int BoardUtils::getPieceMoves(const Board* board,const Square* s)
+std::vector<Coord> BoardUtils::getPieceMoves
+                  (const Board* board,const Square* s,int s_x,int s_y)
 {
-  return 0;
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      end[0] = x;
+      end[1] = y;
+      if(PieceLogic::isMoveValid(board,s,begin,end,nullptr))
+      {
+        retval.push_back(Coord(x,y));
+      }
+    }
+  }
+
+  return retval;
 }

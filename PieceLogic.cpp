@@ -5,9 +5,34 @@
 #include "Board.h"
 
 bool PieceLogic::isMoveValid
-     (Board* board,Square* s,const int* begin,const int* end)
+     (const Board* board,const Square* s,
+      const int* begin,const int* end,bool* enpassant)
 {
   if(s == nullptr)
+  {
+    return false;
+  }
+
+  if(enpassant != nullptr)
+  {
+    *enpassant = false;
+  }
+
+  // check for valid coordinates
+  if(board->at(begin) == nullptr || board->at(end) == nullptr 
+  || (begin[0] == end[0] && begin[1] == end[1]))
+  {
+    return false;
+  }
+
+  // check if the player is moving their own piece (or a piece at all)
+  if(board->at(begin)->getPlayer() != board->getPlayerToMove())
+  {
+    return false;
+  }
+
+  // players can't capture their own pieces
+  if(board->at(end)->getPlayer() == board->getPlayerToMove())
   {
     return false;
   }
@@ -15,7 +40,7 @@ bool PieceLogic::isMoveValid
   switch(s->getPiece())
   {
     case Pawn:
-      return isPawnMoveValid   (board,s,begin,end);
+      return isPawnMoveValid   (board,s,begin,end,enpassant);
     case Knight:
       return isKnightMoveValid (board,s,begin,end);
     case Bishop:
@@ -32,7 +57,8 @@ bool PieceLogic::isMoveValid
 }
 
 bool PieceLogic::isPawnMoveValid
-     (Board* board,Square* s,const int* begin,const int* end)
+     (const Board* board,const Square* s,
+      const int* begin,const int* end,bool* enpassant)
 {
   int direction;
   if(s->getPlayer() == White)
@@ -79,10 +105,10 @@ bool PieceLogic::isPawnMoveValid
       else if(board->at(begin[0] + side,begin[1])->getEnPassantTurn() 
               == board->getTurn() - 1)
       {
-        Square* toClear = board->at(begin[0] + side,begin[1]);
-        toClear->setPiece(Empty);
-        toClear->setPlayer(None);
-        toClear->setEnPassantTurn(-1);
+        if(enpassant != nullptr)
+        {
+          *enpassant = true;
+        }
         return true;
       }
     }

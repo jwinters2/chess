@@ -22,7 +22,7 @@ class Board
     int move_begin[2];
     int move_end[2];
 
-    bool parseNotation(std::string,int*,int*);
+    bool parseNotation(std::string,int*,int*,bool*);
     void switchPlayer();
 
   public:

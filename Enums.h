@@ -15,3 +15,13 @@ struct Move
   {
   }
 };
+
+struct Coord
+{
+  int x;
+  int y;
+
+  Coord(int x1,int y1):x(x1),y(y1)
+  {
+  }
+};

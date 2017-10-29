@@ -164,16 +164,26 @@ bool Board::move(std::string notation)
     }
   }
 
-  if(!parseNotation(notation,move_begin,move_end))
+  bool enp = false;
+  if(parseNotation(notation,move_begin,move_end,&enp))
   {
-    return false;
+    Square::movePiece(at( move_begin[0], move_begin[1] ),
+                      at(   move_end[0],   move_end[1] ));
+
+    // en-passant
+    if(enp)
+    {
+      Square* toClear = at(move_end[0],move_begin[1]);
+      toClear->setPiece(Empty);
+      toClear->setPlayer(None);
+      toClear->setEnPassantTurn(-1);
+    }
+
+    switchPlayer();
+    return true;
   }
 
-  Square::movePiece(board[ move_begin[0] ][ move_begin[1] ],
-                    board[ move_end[0]   ][ move_end[1]   ]);
-
-  switchPlayer();
-  return true;
+  return false;
 }
 
 void Board::switchPlayer()
@@ -189,7 +199,7 @@ void Board::switchPlayer()
   turn++;
 }
 
-bool Board::parseNotation(std::string notation,int* begin,int* end)
+bool Board::parseNotation(std::string notation,int* begin,int* end,bool* enp)
 {
   // notation is in format a1-b2 or a1 b2
   // always 5 characters (except for 0-0 and 0-0-0)
@@ -218,6 +228,8 @@ bool Board::parseNotation(std::string notation,int* begin,int* end)
     end[0]   = (notation.at(3) - 'a');
     end[1]   = (notation.at(4) - '1');
   }
+  
+  return PieceLogic::isMoveValid(this,at(begin),begin,end,enp);
 
   // check for valid coordinates
   if(at(begin) == nullptr || at(end) == nullptr 
@@ -238,7 +250,7 @@ bool Board::parseNotation(std::string notation,int* begin,int* end)
     return false;
   }
 
-  return PieceLogic::isMoveValid(this,at(begin),begin,end);
+  return PieceLogic::isMoveValid(this,at(begin),begin,end,nullptr);
 }
 
 Square* Board::at(const int* coord) const

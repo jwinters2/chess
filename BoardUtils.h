@@ -12,11 +12,11 @@ class BoardUtils
   public:
     static std::vector<int> getBoardScore(const Board*);
     static std::vector<Move> getPossibleMoves(const Board*,Player);
+    static std::vector<Coord> getPieceMoves(const Board*,const Square*,int,int);
 
   private:
     BoardUtils();
     ~BoardUtils();
 
     static int getPieceScore(Piece);
-    static int getPieceMoves(const Board*,const Square*);
 };

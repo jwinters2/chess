@@ -24,6 +24,7 @@ enum Texture
   black_king,
   selection_red,
   selection_blue,
+  selection_circle,
   TEXTURE_COUNT
 };
 
@@ -69,13 +70,17 @@ class GraphicsManager
     static SDL_Renderer* renderer;
     static SDL_Texture** tex;
 
-    static void renderSquare(const Square*,const SDL_Rect*,std::string,int,int);
+    static void renderSquare(const Square*,const SDL_Rect*);
+    static void renderSelection(const Board*,std::string);
+    static void renderPiece(const Square*,const SDL_Rect*);
     static void renderTexture(Texture,const SDL_Rect*);
 
     static void renderString(std::string,int,int);
     static void renderCharacter(char,int,int);
 
     static int rotate(int);
+    static int xGridToCoord(int);
+    static int yGridToCoord(int);
     static bool rotateOnBlack;
 
     static void renderBoardCS(const Board*);
