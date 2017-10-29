@@ -21,7 +21,6 @@ class Board
     int move_begin[2];
     int move_end[2];
 
-    bool parseNotation(std::string,int*,int*,EnPassant*);
     void switchPlayer();
 
     Square& at(const int*);
@@ -29,11 +28,15 @@ class Board
 
   public:
     Board();
+    Board(const Board&);
     ~Board();
+    void makeIntoCopyOf(const Board&);
 
     void render() const;
 
     bool move(std::string);
+    bool move(const Move&);
+    bool parseNotation(std::string,int*,int*,SpecialMove*) const;
     Player getPlayerToMove() const;
 
     Piece getPiece(int,int) const;

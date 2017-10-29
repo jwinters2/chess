@@ -3,7 +3,8 @@
 enum Piece { Empty, Pawn, Knight, Bishop, Rook, Queen, King };
 enum Player { None, White, Black };
 enum Color { WhiteSquare, BlackSquare };
-enum EnPassant { NoPassant, Moved, Captured };
+enum SpecialMove { NoMove, MovedEnPassant, CapturedEnPassant, 
+                   CastleKingside, CastleQueenside };
 
 struct Move
 {

@@ -53,8 +53,27 @@ Board::Board():board_width(8),board_height(8),playerToMove(White),turn(1)
   board[7][7].setPiece(Rook);
 }
 
+Board::Board(const Board& other):board_width(8),board_height(8)
+{
+  makeIntoCopyOf(other);
+}
+
 Board::~Board()
 {
+}
+
+void Board::makeIntoCopyOf(const Board& other)
+{
+  playerToMove = other.playerToMove; 
+  turn = other.turn;
+
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      board[x][y].makeIntoCopyOf(other.board[x][y]); 
+    }
+  }
 }
 
 void Board::render() const
@@ -101,75 +120,61 @@ void Board::render() const
 
 bool Board::move(std::string notation)
 {
-  // check castling first
-  if(notation.compare("0-0") == 0
+  // replace castling notation with consistant-with-everything-else notation
+
+  if(notation.compare("o-o") == 0
   || notation.compare("O-O") == 0
-  || notation.compare("o-o") == 0)
+  || notation.compare("0-0") == 0)
   {
-    // kingside castle
-    int kingPos[2] = {4,0};
-    int rookPos[2] = {7,0};
-    // check both black and white
-    for(int i=0; i<=7; i+=7)
+    if(playerToMove == White)
     {
-      kingPos[1] = i;
-      rookPos[1] = i;
-
-      // if neither the king or the rook has moved, and
-      if(!at(kingPos).getHasMoved() && !at(rookPos).getHasMoved()
-      && at(5,i).getPiece() == Empty && at(6,i).getPiece() == Empty)
-      {
-        Square::movePiece(at(kingPos),at(6,i));
-        Square::movePiece(at(rookPos),at(5,i));
-        switchPlayer();
-        return true;
-      }
+      notation = "e1 g1";
+    }
+    else
+    {
+      notation = "e8 g8";
     }
   }
 
-  if(notation.compare("0-0-0") == 0
+  if(notation.compare("o-o-o") == 0
   || notation.compare("O-O-O") == 0
-  || notation.compare("o-o-o") == 0)
+  || notation.compare("0-0-0") == 0)
   {
-    // queenside castle
-    int kingPos[2] = {4,0};
-    int rookPos[2] = {0,0};
-    // check both black and white
-    for(int i=0; i<=7; i+=7)
+    if(playerToMove == White)
     {
-      kingPos[1] = i;
-      rookPos[1] = i;
-
-      // if neither the king or the rook has moved, and
-      if(!at(kingPos).getHasMoved() && !at(rookPos).getHasMoved()
-      && at(3,i).getPiece() == Empty && at(2,i).getPiece() == Empty
-      && at(1,i).getPiece() == Empty)
-      {
-        Square::movePiece(at(kingPos),at(2,i));
-        Square::movePiece(at(rookPos),at(3,i));
-        switchPlayer();
-        return true;
-      }
+      notation = "e1 c1";
+    }
+    else
+    {
+      notation = "e8 c8";
     }
   }
 
-  EnPassant enp = NoPassant;
-  if(parseNotation(notation,move_begin,move_end,&enp))
+  SpecialMove sm = NoMove;
+  if(parseNotation(notation,move_begin,move_end,&sm))
   {
     Square::movePiece(at( move_begin[0], move_begin[1] ),
                       at(   move_end[0],   move_end[1] ));
 
-    // en-passant
-    if(enp == Moved)
+    // en-passant / castling
+    switch(sm)
     {
-      at(move_end).setEnPassantTurn(getTurn());
+      case MovedEnPassant:
+        at(move_end).setEnPassantTurn(getTurn());
+        break;
+      case CapturedEnPassant:
+        at(move_end[0],move_begin[1]).setPiece(Empty);
+        at(move_end[0],move_begin[1]).setPlayer(None);
+        at(move_end[0],move_begin[1]).setEnPassantTurn(-1);
+        break;
+      case CastleKingside:
+        Square::movePiece( at(7,move_begin[1]),at(5,move_begin[1])); 
+        break;
+      case CastleQueenside:
+        Square::movePiece( at(0,move_begin[1]),at(3,move_begin[1])); 
+        break;
     }
-    if(enp == Captured)
-    {
-      at(move_end[0],move_begin[1]).setPiece(Empty);
-      at(move_end[0],move_begin[1]).setPlayer(None);
-      at(move_end[0],move_begin[1]).setEnPassantTurn(-1);
-    }
+
 
     switchPlayer();
     return true;
@@ -192,7 +197,7 @@ void Board::switchPlayer()
 }
 
 bool Board::parseNotation(std::string notation,int* begin,int* end,
-                          EnPassant* enp)
+                          SpecialMove* sm) const
 {
   // notation is in format a1-b2 or a1 b2
   // always 5 characters (except for 0-0 and 0-0-0)
@@ -222,7 +227,7 @@ bool Board::parseNotation(std::string notation,int* begin,int* end,
     end[1]   = (notation.at(4) - '1');
   }
   
-  return PieceLogic::isMoveValid(this,begin,end,enp);
+  return PieceLogic::isMoveValid(this,begin,end,sm);
 }
 
 Square& Board::at(const int* coord)

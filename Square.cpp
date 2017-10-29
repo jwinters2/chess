@@ -16,6 +16,15 @@ Square::~Square()
 {
 }
 
+void Square::makeIntoCopyOf(const Square& other)
+{
+  piece = other.piece;
+  player = other.player;
+  color = other.color;
+  hasMoved = other.hasMoved;
+  enPassantTurn = other.enPassantTurn;
+}
+
 Piece Square::getPiece() const
 {
   return piece;
@@ -110,13 +119,4 @@ void Square::movePiece(Square& begin,Square& end)
 
   end.hasMoved = true;
   begin.hasMoved = false;
-}
-
-void Square::makeIntoCopyOf(const Square& other)
-{
-  piece = other.piece;
-  player = other.player;
-  color = other.color;
-  hasMoved = other.hasMoved;
-  enPassantTurn = other.enPassantTurn;
 }

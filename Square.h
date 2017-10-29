@@ -16,6 +16,8 @@ class Square
     Square(Piece,Player,Color);
     ~Square();
 
+    void makeIntoCopyOf(const Square&);
+
     Piece getPiece() const;
     Player getPlayer() const;
     Color getColor() const;
@@ -30,6 +32,4 @@ class Square
     bool render() const;
 
     static void movePiece(Square&,Square&);
-
-    void makeIntoCopyOf(const Square&);
 };

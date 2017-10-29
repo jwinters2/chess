@@ -277,7 +277,55 @@ void GraphicsManager::renderSquare
 
 void GraphicsManager::renderSelection(const Board* board,std::string text)
 {
-  if(text.size() >= 2)
+  if(text.compare("o-o") == 0
+  || text.compare("O-O") == 0
+  || text.compare("0-0") == 0)
+  {
+    int y = (board->getPlayerToMove() == White ? 0 : 7);
+    int begin[2] = {4,y};
+    int end[2]   = {6,y};
+    if(board->parseNotation(
+              (board->getPlayerToMove() == White ? "e1 g1" : "e8 g8"),
+              begin,end,nullptr))
+    {
+      SDL_Rect pos;
+      pos.w = square_size;
+      pos.h = square_size;
+
+      pos.x = xGridToCoord(5);
+      pos.y = yGridToCoord(y);
+
+      renderTexture(selection_circle,&pos);
+      pos.x = xGridToCoord(6);
+      renderTexture(selection_circle,&pos);
+    }
+  }
+  else if(text.compare("o-o-o") == 0
+       || text.compare("O-O-O") == 0
+       || text.compare("0-0-0") == 0)
+  {
+    int y = (board->getPlayerToMove() == White ? 0 : 7);
+    int begin[2] = {4,y};
+    int end[2]   = {6,y};
+    if(board->parseNotation(
+              (board->getPlayerToMove() == White ? "e1 c1" : "e8 c8"),
+              begin,end,nullptr))
+    {
+      SDL_Rect pos;
+      pos.w = square_size;
+      pos.h = square_size;
+
+      pos.x = xGridToCoord(3);
+      pos.y = yGridToCoord((board->getPlayerToMove() == White ? 0 : 7));
+
+      renderTexture(selection_circle,&pos);
+      pos.x = xGridToCoord(2);
+      renderTexture(selection_circle,&pos);
+      pos.x = xGridToCoord(1);
+      renderTexture(selection_circle,&pos);
+    }
+  }
+  else if(text.size() >= 2)
   {
     SDL_Rect pos;
     pos.w = square_size;
@@ -286,10 +334,13 @@ void GraphicsManager::renderSelection(const Board* board,std::string text)
     int text_x = text.at(0) - 'a';
     int text_y = text.at(1) - '1';
 
-    pos.x = xGridToCoord(text_x);
-    pos.y = yGridToCoord(text_y);
+    if(board->areValidCoordinates(text_x,text_y))
+    {
+      pos.x = xGridToCoord(text_x);
+      pos.y = yGridToCoord(text_y);
 
-    renderTexture(selection_red,&pos);
+      renderTexture(selection_red,&pos);
+    }
 
     std::vector<Coord> possibleMoves = 
     BoardUtils::getPieceMoves(board,text_x,text_y);
@@ -307,7 +358,8 @@ void GraphicsManager::renderSelection(const Board* board,std::string text)
     {
       int text_x_end = text.at(3) - 'a';
       int text_y_end = text.at(4) - '1';
-      if(text_x != text_x_end || text_y != text_y_end)
+      if(board->areValidCoordinates(text_x_end,text_y_end)
+      && (text_x != text_x_end || text_y != text_y_end) )
       {
         pos.x = xGridToCoord(text_x_end);
         pos.y = yGridToCoord(text_y_end);
