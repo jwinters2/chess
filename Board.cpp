@@ -183,6 +183,45 @@ bool Board::move(std::string notation)
   return false;
 }
 
+bool Board::move(const Move& m)
+{
+  int move_begin[2] = { m.start_x , m.start_y };
+  int move_end[2]   = { m.end_x   , m.end_y   };
+
+  SpecialMove sm = NoMove;
+  if(PieceLogic::isMoveValid(this,move_begin,move_end,&sm))
+  {
+    Square::movePiece(at( move_begin[0], move_begin[1] ),
+                      at(   move_end[0],   move_end[1] ));
+
+    // en-passant / castling
+    switch(sm)
+    {
+      case MovedEnPassant:
+        at(move_end).setEnPassantTurn(getTurn());
+        break;
+      case CapturedEnPassant:
+        at(move_end[0],move_begin[1]).setPiece(Empty);
+        at(move_end[0],move_begin[1]).setPlayer(None);
+        at(move_end[0],move_begin[1]).setEnPassantTurn(-1);
+        break;
+      case CastleKingside:
+        Square::movePiece( at(7,move_begin[1]),at(5,move_begin[1])); 
+        break;
+      case CastleQueenside:
+        Square::movePiece( at(0,move_begin[1]),at(3,move_begin[1])); 
+        break;
+    }
+
+
+    switchPlayer();
+    return true;
+  }
+
+  return false;
+}
+
+
 void Board::switchPlayer()
 {
   if(playerToMove == White)

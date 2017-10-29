@@ -345,13 +345,16 @@ void GraphicsManager::renderSelection(const Board* board,std::string text)
     std::vector<Coord> possibleMoves = 
     BoardUtils::getPieceMoves(board,text_x,text_y);
 
-    for(auto it = possibleMoves.begin(); it != possibleMoves.end(); ++it)
+    if(!possibleMoves.empty())
     {
-      //std::cout << (char)(it->x + 'a') << (char)(it->y + '1') << std::endl;
-      pos.x = xGridToCoord(it->x);
-      pos.y = yGridToCoord(it->y);
+      for(auto it = possibleMoves.begin(); it != possibleMoves.end(); ++it)
+      {
+        //std::cout << (char)(it->x + 'a') << (char)(it->y + '1') << std::endl;
+        pos.x = xGridToCoord(it->x);
+        pos.y = yGridToCoord(it->y);
 
-      renderTexture(selection_circle,&pos);
+        renderTexture(selection_circle,&pos);
+      }
     }
 
     if(text.size() >= 5)

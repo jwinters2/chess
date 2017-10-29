@@ -17,10 +17,15 @@ To compile:
 
 To run:
 
-    ./chess [-r]
+    ./chess [ -r | -d DEPTH | -c | -h ]
 
   the -r option will rotate the board when it's black's turn, so
   both players will be playing from the bottom.
+
+  the -d option will set the search depth of the computer opponent,
+  the higher d is, the smarter and slower it is.  The default value is 3
+
+  -c and -h will set the opponent to be a computer or a human respectively
 
 To play:
 
@@ -33,14 +38,23 @@ To play:
   Castling is either "O-O" for kingside, and "O-O-O" for queenside.
   Lowercase O's ("o") and zeros ("0") will also work.
 
+To exit:
+  
+  Ctrl-c or Ctrl-q
   
 To do (for me):
 
-- support for en-passant and stricter rules for castling
+- support stricter rules for castling
   (the king can't pass through check when castling in 
   official chess, but can here)
 
-- a basic chess A.I. to play against
+- prevent the king from moving into check
+
+- tell when the game is over
+
+- detect stalemate and consider it a draw
+
+- a better chess A.I. to play against
 
 - fix memory leaks (SDL 2.0 is weird, literally opening and closing it loses
   like 300 bytes, and somehow leaving it open loses less)

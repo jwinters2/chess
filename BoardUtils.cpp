@@ -36,6 +36,33 @@ std::vector<int> BoardUtils::getBoardScore(const Board* board)
   return retval;
 }
 
+int BoardUtils::getWhiteScore(const Board* board)
+{
+  if(board == nullptr)
+  {
+    return 0;
+  }
+
+  int whiteScore = 0;  
+
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      if(board->getPlayer(x,y) == White)
+      {
+        whiteScore += getPieceScore(board->getPiece(x,y));
+      }
+      else
+      {
+        whiteScore -= getPieceScore(board->getPiece(x,y));
+      }
+    }
+  }
+
+  return whiteScore;
+}
+
 std::vector<Move> BoardUtils::getPossibleMoves(const Board* board,Player player)
 {
   std::vector<Move> retval;
@@ -83,6 +110,24 @@ int BoardUtils::getPieceScore(Piece piece)
 
 std::vector<Coord> BoardUtils::getPieceMoves(const Board* board,int s_x,int s_y)
 {
+  switch(board->getPiece(s_x,s_y))
+  {
+    case Pawn:
+      return getPawnMoves(board,s_x,s_y);
+    case Knight:
+      return getKnightMoves(board,s_x,s_y);
+    case Bishop:
+      return getBishopMoves(board,s_x,s_y);
+    case Rook:
+      return getRookMoves(board,s_x,s_y);
+    case Queen:
+      return getQueenMoves(board,s_x,s_y);
+    case King:
+      return getKingMoves(board,s_x,s_y);
+    default:
+      return std::vector<Coord>();
+  }
+  /*
   std::vector<Coord> retval;
   int begin[2] = {s_x,s_y};
   int end[2];
@@ -97,6 +142,215 @@ std::vector<Coord> BoardUtils::getPieceMoves(const Board* board,int s_x,int s_y)
       {
         retval.push_back(Coord(x,y));
       }
+    }
+  }
+
+  return retval;
+  */
+}
+
+std::vector<Coord> BoardUtils::getPawnMoves(const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  int direction = (board->getPlayer(s_x,s_y) == White ? 1 : -1);
+
+  // pawns can possibly move one square forward
+  end[0] = begin[0];
+  end[1] = begin[1] + direction;
+  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  {
+    retval.push_back(Coord(end[0],end[1]));
+  }
+
+  // pawns can possibly move two squares forward
+  end[0] = begin[0];
+  end[1] = begin[1] + (2 * direction);
+  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  {
+    retval.push_back(Coord(end[0],end[1]));
+  }
+  
+  // pawns can possibly move one square diagonally forward
+  end[0] = begin[0] + 1;
+  end[1] = begin[1] + direction;
+  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  {
+    retval.push_back(Coord(end[0],end[1]));
+  }
+
+  end[0] = begin[0] -1;
+  end[1] = begin[1] + direction;
+  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  {
+    retval.push_back(Coord(end[0],end[1]));
+  }
+
+  return retval;
+}
+
+std::vector<Coord> BoardUtils::getKnightMoves
+                   (const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  for(int dx = -1; dx <= 1; dx += 2)
+  {
+    for(int dy = -1; dy <= 1; dy += 2)
+    {
+      end[0] = begin[0] + dx;
+      end[1] = begin[1] + (2*dy);
+      if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+      {
+        retval.push_back(Coord(end[0],end[1]));
+      }
+
+      end[0] = begin[0] + (2*dx);
+      end[1] = begin[1] + dy;
+      if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+      {
+        retval.push_back(Coord(end[0],end[1]));
+      }
+    }
+  }
+
+  return retval;
+}
+std::vector<Coord> BoardUtils::getBishopMoves
+                   (const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  int i;
+  bool sucessfull;
+
+  for(int dx = -1; dx <= 1; dx += 2)
+  {
+    for(int dy = -1; dy <= 1; dy += 2)
+    {
+      // walk along the direction until we fail
+      i = 1;
+      sucessfull = true;
+
+      while(sucessfull)
+      {
+        end[0] = begin[0] + (i*dx);
+        end[1] = begin[1] + (i*dy);
+
+        sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+        if(sucessfull)
+        {
+          retval.push_back(Coord(end[0],end[1]));
+        }
+        
+        i++;
+      }
+    }
+  }
+
+  return retval;
+}
+
+std::vector<Coord> BoardUtils::getRookMoves(const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  int i;
+  bool sucessfull;
+
+  for(int dx = -1; dx <= 1; dx += 2)
+  {
+    // walk along the direction until we fail
+    i = 1;
+    sucessfull = true;
+
+    while(sucessfull)
+    {
+      end[0] = begin[0] + (i*dx);
+      end[1] = begin[1];
+
+      sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+      if(sucessfull)
+      {
+        retval.push_back(Coord(end[0],end[1]));
+      }
+        
+      i++;
+    }
+  }
+
+  for(int dy = -1; dy <= 1; dy += 2)
+  {
+    // walk along the direction until we fail
+    i = 1;
+    sucessfull = true;
+
+    while(sucessfull)
+    {
+      end[0] = begin[0];
+      end[1] = begin[1] + (i*dy);
+
+      sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+      if(sucessfull)
+      {
+        retval.push_back(Coord(end[0],end[1]));
+      }
+        
+      i++;
+    }
+  }
+
+  return retval;
+}
+ 
+std::vector<Coord> BoardUtils::getQueenMoves(const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval = getRookMoves(board,s_x,s_y);
+  std::vector<Coord> bishopMoves = getBishopMoves(board,s_x,s_y);
+  
+  retval.insert(retval.end(),bishopMoves.begin(),bishopMoves.end());
+
+  return retval;
+}
+
+std::vector<Coord> BoardUtils::getKingMoves(const Board* board,int s_x,int s_y)
+{
+  std::vector<Coord> retval;
+  int begin[2] = {s_x,s_y};
+  int end[2];
+
+  for(int dx = -1; dx <= 1; dx++)
+  {
+    for(int dy = -1; dy <= 1; dy++)
+    {
+      if(dx != 0 || dy != 0)
+      {
+        end[0] = begin[0] + dx;
+        end[1] = begin[1] + dy;
+        if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+        {
+          retval.push_back(Coord(end[0],end[1]));
+        }
+      }
+    }
+  }
+
+  // check for both sides of castling
+  for(int dx = -2; dx <= 2; dx += 4)
+  {
+    end[0] = begin[0] + dx;
+    end[1] = begin[1];
+    if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+    {
+      retval.push_back(Coord(end[0],end[1]));
     }
   }
 

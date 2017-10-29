@@ -13,7 +13,9 @@ bool PieceLogic::isMoveValid
   }
 
   // check for valid coordinates
-  if(begin[0] == end[0] && begin[1] == end[1])
+  if( !board->areValidCoordinates(begin[0],begin[1]) 
+  || !board->areValidCoordinates(end[0],end[1])
+  || (begin[0] == end[0] && begin[1] == end[1]))
   {
     return false;
   }
@@ -76,7 +78,8 @@ bool PieceLogic::isPawnMoveValid
   if(begin[0] == end[0] && begin[1] + (2*direction) == end[1] 
   && !board->getHasMoved(begin))
   {
-    if(board->getPiece(begin[0],begin[1] + (2*direction)) == Empty)
+    if(board->getPiece(begin[0],begin[1] +    direction)  == Empty
+    && board->getPiece(begin[0],begin[1] + (2*direction)) == Empty)
     {
       //board->setEnPassantTurn(end,board->getTurn());
       if(sm != nullptr)
