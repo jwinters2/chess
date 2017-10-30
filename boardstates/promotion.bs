@@ -1,0 +1,5 @@
+d 5 w p
+
+c 3 w r
+d 3 b p
+e 3 w r

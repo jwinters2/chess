@@ -1,0 +1,5 @@
+c 2 w r
+d 4 w r
+c 4 w n
+d 3 w n
+g 2 b q

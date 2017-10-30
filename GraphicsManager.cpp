@@ -173,9 +173,7 @@ void GraphicsManager::renderBoardCS(const Board* board)
 
   statusText += std::to_string( (1 + board->getTurn()) / 2 );
   statusText += " ";
-  statusText += std::to_string(BoardUtils::getBoardScore(board).front() % 100);
-  statusText += ":";
-  statusText += std::to_string(BoardUtils::getBoardScore(board).back() % 100);
+  statusText += std::to_string(board->getScore());
   statusText += " ";
   statusText += playerToMove;
 

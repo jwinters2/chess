@@ -233,6 +233,8 @@ bool Board::move(std::string notation)
   SpecialMove sm = NoMove;
   if(parseNotation(notation,move_begin,move_end,&sm))
   {
+    addScore(BoardUtils::getPieceScore( getPiece(move_end) ));
+
     Square::movePiece(at( move_begin[0], move_begin[1] ),
                       at(   move_end[0],   move_end[1] ));
 

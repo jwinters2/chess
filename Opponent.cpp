@@ -26,14 +26,6 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
     return score;
   }
 
-  d--;
-
-  if(d > 2 && isBetterThan(currentPlayer,badnessThreshold(currentPlayer),
-              score - original))
-  {
-    d = 2;
-  }
-  
   //std::cout << "minmax, d = " << d << std::endl;
 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,currentPlayer);
@@ -46,12 +38,13 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
   }
 
   Board tempBoard;
+  int current;
   for(auto it = moves.begin(); it != moves.end(); ++it)
   {
     tempBoard.makeIntoCopyOf(*board);
     tempBoard.move(*it);
-    int current = minmax(&tempBoard,nextPlayer(currentPlayer),
-                          d,bestScore,original);
+    current = minmax(&tempBoard,nextPlayer(currentPlayer),
+                      d-1,bestScore,original);
 
     if(isBetterThan(currentPlayer,current,bestScore))
     {
@@ -72,7 +65,7 @@ Move Opponent::getMove(const Board* board) const
   // for each possible move, return the one with the highest score 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,player);
 
-  int currentScore = BoardUtils::getWhiteScore(board);
+  int currentScore = board->getScore();
 
   Move bestMove;
   int bestScore = scoreLowerBound(player);
@@ -83,12 +76,13 @@ Move Opponent::getMove(const Board* board) const
     return Move();
   }
 
+  int current;
   for(auto it = moves.begin(); it != moves.end(); ++it)
   {
     tempBoard.makeIntoCopyOf(*board);
     tempBoard.move(*it);
-    int current = minmax(&tempBoard,nextPlayer(player),
-                         depth,bestScore,currentScore);
+    current = minmax(&tempBoard,nextPlayer(player),
+                     depth,bestScore,currentScore);
     if(isBetterThan(player,current,bestScore))
     {
       bestScore = current;
@@ -101,9 +95,7 @@ Move Opponent::getMove(const Board* board) const
 
 bool Opponent::isBetterThan(Player p,const Board* a,const Board* b) const
 {
-  return isBetterThan(p,
-                      BoardUtils::getWhiteScore(a),
-                      BoardUtils::getWhiteScore(b));
+  return isBetterThan(p,a->getScore(),b->getScore());
 }
 
 bool Opponent::isBetterThan(Player p,int a,int b) const
