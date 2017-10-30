@@ -17,11 +17,21 @@ Opponent::~Opponent()
 }
 
 int Opponent::minmax(const Board* board,Player currentPlayer,
-                    int d,int alphabeta) const
+                    int d,int alphabeta,int original) const
 {
-  if(d <= 0)
+  int score = board->getScore();
+
+  if(d <= 0 || score > 9000 || score < -9000)
   {
-    return BoardUtils::getWhiteScore(board);
+    return score;
+  }
+
+  d--;
+
+  if(d > 2 && isBetterThan(currentPlayer,badnessThreshold(currentPlayer),
+              score - original))
+  {
+    d = 2;
   }
   
   //std::cout << "minmax, d = " << d << std::endl;
@@ -29,12 +39,19 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,currentPlayer);
 
   int bestScore = scoreLowerBound(currentPlayer);
+
+  if(moves.empty())
+  {
+    return bestScore;
+  }
+
   Board tempBoard;
   for(auto it = moves.begin(); it != moves.end(); ++it)
   {
     tempBoard.makeIntoCopyOf(*board);
     tempBoard.move(*it);
-    int current = minmax(&tempBoard,nextPlayer(currentPlayer),d-1,bestScore);
+    int current = minmax(&tempBoard,nextPlayer(currentPlayer),
+                          d,bestScore,original);
 
     if(isBetterThan(currentPlayer,current,bestScore))
     {
@@ -55,14 +72,23 @@ Move Opponent::getMove(const Board* board) const
   // for each possible move, return the one with the highest score 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,player);
 
+  int currentScore = BoardUtils::getWhiteScore(board);
+
   Move bestMove;
   int bestScore = scoreLowerBound(player);
   Board tempBoard;
+  if(moves.empty())
+  {
+    std::cerr << "opponent has no moves to check" << std::endl;
+    return Move();
+  }
+
   for(auto it = moves.begin(); it != moves.end(); ++it)
   {
     tempBoard.makeIntoCopyOf(*board);
     tempBoard.move(*it);
-    int current = minmax(&tempBoard,nextPlayer(player),depth,bestScore);
+    int current = minmax(&tempBoard,nextPlayer(player),
+                         depth,bestScore,currentScore);
     if(isBetterThan(player,current,bestScore))
     {
       bestScore = current;

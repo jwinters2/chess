@@ -5,7 +5,8 @@
 #include "Board.h"
 
 bool PieceLogic::isMoveValid
-     (const Board* board,const int* begin,const int* end,SpecialMove* sm)
+     (const Board* board,const int* begin,const int* end,
+      Piece promoteTo,SpecialMove* sm)
 {
   if(sm != nullptr)
   {
@@ -32,10 +33,40 @@ bool PieceLogic::isMoveValid
     return false;
   }
 
+  SpecialMove tempsm;
+
   switch(board->getPiece(begin))
   {
     case Pawn:
-      return isPawnMoveValid   (board,begin,end,sm);
+      if(isPawnMoveValid   (board,begin,end,sm))
+      {
+        if(end[1] == 7 || end[1] == 0)
+        {
+          switch(promoteTo)
+          {
+            case Knight:
+              tempsm = PromoteKnight;
+              break;
+            case Bishop:
+              tempsm = PromoteBishop;
+              break;
+            case Rook:
+              tempsm = PromoteRook;
+              break;
+            case Queen:
+              tempsm = PromoteQueen;
+              break;
+            default:
+              return false;
+          }
+
+          if(sm != nullptr)
+          {
+            *sm = tempsm;
+          }
+        }
+        return true;
+      }
     case Knight:
       return isKnightMoveValid (board,begin,end);
     case Bishop:

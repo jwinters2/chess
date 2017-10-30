@@ -9,7 +9,7 @@ class Opponent
     const int depth;
     const Player player;
 
-    int minmax(const Board*,Player,int,int) const;
+    int minmax(const Board*,Player,int,int,int) const;
 
     bool isBetterThan(Player,int,int) const;
     bool isBetterThan(Player,const Board*,const Board*) const;

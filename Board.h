@@ -16,6 +16,8 @@ class Board
     const int board_height;
 
     int turn;
+    int score;
+    void addScore(int);
 
     Player playerToMove;
     int move_begin[2];
@@ -25,6 +27,8 @@ class Board
 
     Square& at(const int*);
     Square& at(int,int);
+
+    void clearBoard();
 
   public:
     Board();
@@ -36,6 +40,7 @@ class Board
 
     bool move(std::string);
     bool move(const Move&);
+    void performSpecialMove(const int*,const int*,SpecialMove);
     bool parseNotation(std::string,int*,int*,SpecialMove*) const;
     Player getPlayerToMove() const;
 
@@ -64,4 +69,10 @@ class Board
     bool areValidCoordinates(int,int) const;
 
     int getTurn() const;
+    int getScore() const;
+
+    void setupDefault();
+    void setupFromFile(std::ifstream&);
+
+    bool hasEnded() const;
 };

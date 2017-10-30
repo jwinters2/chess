@@ -1,17 +1,18 @@
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 
 #include "GraphicsManager.h"
 #include "Board.h"
 #include "Opponent.h"
 
-enum OpponentType {NoOpponent, Human, Computer};
-
 int main(int argc, char** argv)
 {
   int opponentDepth = 3;
   bool rob = false;
-  OpponentType ot = NoOpponent;
+  bool computerOp = true;
+  bool readFromFile = false;
+  std::string filename = "";
 
   for(int i=1; i<argc; i++)
   {
@@ -27,26 +28,29 @@ int main(int argc, char** argv)
       }
       else
       {
-        std::cerr << "invalid use of -d, needs a number (default=3)";;
+        std::cerr << "invalid use of -d, needs a number (default=3)";
         std::cerr << std::endl;
         exit(EXIT_FAILURE);
       }
     }
-    else if(strcmp(argv[1],"-h") == 0)
+    else if(strcmp(argv[i],"-h") == 0)
     {
-      ot = Human;
+       computerOp = false;
     }
-    else if(strcmp(argv[1],"-c") == 0)
+    else if(strcmp(argv[i],"-o") == 0)
     {
-      ot = Computer;
+      readFromFile = true;
+      if(i+1 < argc)
+      {
+        std::string buffer(argv[++i]);
+        filename = buffer;
+      }
+      else
+      {
+        std::cerr << "invalid use of -o, needs a filename" << std::endl;
+        exit(EXIT_FAILURE);
+      }
     }
-  }
-
-  if(ot == NoOpponent)
-  {
-      std::cerr << "please specify an opponent with -h (human) ";
-      std::cerr << "or -c (computer)" << std::endl;
-      exit(EXIT_FAILURE);
   }
 
   std::string input;
@@ -55,11 +59,22 @@ int main(int argc, char** argv)
   Board b;
   Opponent o(opponentDepth,Black);
 
+  if(readFromFile)
+  {
+    std::ifstream file;
+    std::cout << "opening " << filename << std::endl;
+    file.open("boardstates/" + filename + ".bs");
+    if(file.is_open())
+    {
+      b.setupFromFile(file);
+    }
+  }
+
   b.render();
   
-  while(!GraphicsManager::programTerminated())
+  while(!GraphicsManager::programTerminated() && !b.hasEnded())
   {
-    if(b.getPlayerToMove() == White || ot == Human)
+    if(b.getPlayerToMove() == White || !computerOp)
     {
       input = GraphicsManager::getInput();
       b.move(input);

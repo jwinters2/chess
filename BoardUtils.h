@@ -15,11 +15,11 @@ class BoardUtils
     static std::vector<Move> getPossibleMoves(const Board*,Player);
     static std::vector<Coord> getPieceMoves(const Board*,int,int);
 
+    static int getPieceScore(Piece);
+
   private:
     BoardUtils();
     ~BoardUtils();
-
-    static int getPieceScore(Piece);
 
     static std::vector<Coord> getPawnMoves  (const Board*,int,int);
     static std::vector<Coord> getKnightMoves(const Board*,int,int);

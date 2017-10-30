@@ -4,6 +4,8 @@
 #include "Square.h"
 #include "PieceLogic.h"
 
+#include <iostream>
+
 std::vector<int> BoardUtils::getBoardScore(const Board* board)
 {
   if(board == nullptr)
@@ -77,7 +79,18 @@ std::vector<Move> BoardUtils::getPossibleMoves(const Board* board,Player player)
         temp = getPieceMoves(board,x,y);
         for(auto it = temp.begin(); it != temp.end(); ++it)
         {
-          retval.push_back(Move( x,y , it->x,it->y ));
+          if( (board->getPiece(x,y) == Pawn) &&
+          ((it->y == 7 && player == White) || (it->y == 0 && player == Black)))
+          {
+            retval.push_back( Move( x,y , it->x,it->y , Knight) );
+            retval.push_back( Move( x,y , it->x,it->y , Bishop) );
+            retval.push_back( Move( x,y , it->x,it->y , Rook) );
+            retval.push_back( Move( x,y , it->x,it->y , Queen) );
+          }
+          else
+          {
+            retval.push_back(Move( x,y , it->x,it->y ));
+          }
         }
       }
     }
@@ -160,7 +173,7 @@ std::vector<Coord> BoardUtils::getPawnMoves(const Board* board,int s_x,int s_y)
   // pawns can possibly move one square forward
   end[0] = begin[0];
   end[1] = begin[1] + direction;
-  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  if(PieceLogic::isMoveValid(board,begin,end,Queen,nullptr))
   {
     retval.push_back(Coord(end[0],end[1]));
   }
@@ -168,7 +181,7 @@ std::vector<Coord> BoardUtils::getPawnMoves(const Board* board,int s_x,int s_y)
   // pawns can possibly move two squares forward
   end[0] = begin[0];
   end[1] = begin[1] + (2 * direction);
-  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  if(PieceLogic::isMoveValid(board,begin,end,Queen,nullptr))
   {
     retval.push_back(Coord(end[0],end[1]));
   }
@@ -176,14 +189,14 @@ std::vector<Coord> BoardUtils::getPawnMoves(const Board* board,int s_x,int s_y)
   // pawns can possibly move one square diagonally forward
   end[0] = begin[0] + 1;
   end[1] = begin[1] + direction;
-  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  if(PieceLogic::isMoveValid(board,begin,end,Queen,nullptr))
   {
     retval.push_back(Coord(end[0],end[1]));
   }
 
   end[0] = begin[0] -1;
   end[1] = begin[1] + direction;
-  if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+  if(PieceLogic::isMoveValid(board,begin,end,Queen,nullptr))
   {
     retval.push_back(Coord(end[0],end[1]));
   }
@@ -204,14 +217,14 @@ std::vector<Coord> BoardUtils::getKnightMoves
     {
       end[0] = begin[0] + dx;
       end[1] = begin[1] + (2*dy);
-      if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+      if(PieceLogic::isMoveValid(board,begin,end,Empty,nullptr))
       {
         retval.push_back(Coord(end[0],end[1]));
       }
 
       end[0] = begin[0] + (2*dx);
       end[1] = begin[1] + dy;
-      if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+      if(PieceLogic::isMoveValid(board,begin,end,Empty,nullptr))
       {
         retval.push_back(Coord(end[0],end[1]));
       }
@@ -243,7 +256,7 @@ std::vector<Coord> BoardUtils::getBishopMoves
         end[0] = begin[0] + (i*dx);
         end[1] = begin[1] + (i*dy);
 
-        sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+        sucessfull = PieceLogic::isMoveValid(board,begin,end,Empty,nullptr);
         if(sucessfull)
         {
           retval.push_back(Coord(end[0],end[1]));
@@ -277,7 +290,7 @@ std::vector<Coord> BoardUtils::getRookMoves(const Board* board,int s_x,int s_y)
       end[0] = begin[0] + (i*dx);
       end[1] = begin[1];
 
-      sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+      sucessfull = PieceLogic::isMoveValid(board,begin,end,Empty,nullptr);
       if(sucessfull)
       {
         retval.push_back(Coord(end[0],end[1]));
@@ -298,7 +311,7 @@ std::vector<Coord> BoardUtils::getRookMoves(const Board* board,int s_x,int s_y)
       end[0] = begin[0];
       end[1] = begin[1] + (i*dy);
 
-      sucessfull = PieceLogic::isMoveValid(board,begin,end,nullptr);
+      sucessfull = PieceLogic::isMoveValid(board,begin,end,Empty,nullptr);
       if(sucessfull)
       {
         retval.push_back(Coord(end[0],end[1]));
@@ -335,7 +348,7 @@ std::vector<Coord> BoardUtils::getKingMoves(const Board* board,int s_x,int s_y)
       {
         end[0] = begin[0] + dx;
         end[1] = begin[1] + dy;
-        if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+        if(PieceLogic::isMoveValid(board,begin,end,Empty,nullptr))
         {
           retval.push_back(Coord(end[0],end[1]));
         }
@@ -348,7 +361,7 @@ std::vector<Coord> BoardUtils::getKingMoves(const Board* board,int s_x,int s_y)
   {
     end[0] = begin[0] + dx;
     end[1] = begin[1];
-    if(PieceLogic::isMoveValid(board,begin,end,nullptr))
+    if(PieceLogic::isMoveValid(board,begin,end,Empty,nullptr))
     {
       retval.push_back(Coord(end[0],end[1]));
     }

@@ -21,5 +21,5 @@ class PieceLogic
     static bool isQueenMoveValid (const Board*,const int*,const int*);
   public:
     static bool isMoveValid
-                (const Board*,const int*,const int*,SpecialMove*);
+                (const Board*,const int*,const int*,Piece,SpecialMove*);
 };

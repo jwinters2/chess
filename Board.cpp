@@ -1,11 +1,14 @@
 #include "Board.h"
+#include "BoardUtils.h"
 #include "Square.h"
 #include "PieceLogic.h"
 #include "GraphicsManager.h"
 
 #include <iostream>
+#include <fstream>
 
-Board::Board():board_width(8),board_height(8),playerToMove(White),turn(1)
+Board::Board():board_width(8),board_height(8),playerToMove(White),
+              turn(1),score(0)
 {
   for(int x=0; x<board_width; x++)
   {
@@ -15,6 +18,11 @@ Board::Board():board_width(8),board_height(8),playerToMove(White),turn(1)
     }
   }
 
+  setupDefault();
+  }
+
+void Board::setupDefault()
+{
   // set owners (and pawns)
   for(int x=0; x<board_width; x++)
   {
@@ -53,6 +61,77 @@ Board::Board():board_width(8),board_height(8),playerToMove(White),turn(1)
   board[7][7].setPiece(Rook);
 }
 
+void Board::setupFromFile(std::ifstream& in)
+{
+  clearBoard();
+
+  char x_in;
+  char y_in;
+  char pl_in;
+  char pi_in;
+
+  int x;
+  int y;
+
+  while(in >> x_in >> y_in >> pl_in >> pi_in)
+  {
+    x = x_in - 'a';
+    y = y_in - '1';
+
+    if(!areValidCoordinates(x,y))
+    {
+      continue;
+    }
+
+    if(pl_in == 'w')
+    {
+      setPlayer(x,y,White);
+    }
+    else if(pl_in == 'b')
+    {
+      setPlayer(x,y,Black);
+    }
+    else
+    {
+      continue;
+    }
+
+    switch(pi_in)
+    {
+      case 'p':
+        setPiece(x,y,Pawn);
+        break;
+      case 'n':
+        setPiece(x,y,Knight);
+        break;
+      case 'b':
+        setPiece(x,y,Bishop);
+        break;
+      case 'r':
+        setPiece(x,y,Rook);
+        break;
+      case 'q':
+        setPiece(x,y,Queen);
+        break;
+      case 'k':
+        setPiece(x,y,King);
+        break;
+    }
+  }
+}
+
+void Board::clearBoard()
+{
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      setPiece(x,y,Empty);
+      setPlayer(x,y,None);
+    }
+  }
+}
+
 Board::Board(const Board& other):board_width(8),board_height(8)
 {
   makeIntoCopyOf(other);
@@ -66,6 +145,7 @@ void Board::makeIntoCopyOf(const Board& other)
 {
   playerToMove = other.playerToMove; 
   turn = other.turn;
+  score = other.score;
 
   for(int x=0; x<8; x++)
   {
@@ -156,25 +236,7 @@ bool Board::move(std::string notation)
     Square::movePiece(at( move_begin[0], move_begin[1] ),
                       at(   move_end[0],   move_end[1] ));
 
-    // en-passant / castling
-    switch(sm)
-    {
-      case MovedEnPassant:
-        at(move_end).setEnPassantTurn(getTurn());
-        break;
-      case CapturedEnPassant:
-        at(move_end[0],move_begin[1]).setPiece(Empty);
-        at(move_end[0],move_begin[1]).setPlayer(None);
-        at(move_end[0],move_begin[1]).setEnPassantTurn(-1);
-        break;
-      case CastleKingside:
-        Square::movePiece( at(7,move_begin[1]),at(5,move_begin[1])); 
-        break;
-      case CastleQueenside:
-        Square::movePiece( at(0,move_begin[1]),at(3,move_begin[1])); 
-        break;
-    }
-
+    performSpecialMove(move_begin,move_end,sm); 
 
     switchPlayer();
     return true;
@@ -189,30 +251,15 @@ bool Board::move(const Move& m)
   int move_end[2]   = { m.end_x   , m.end_y   };
 
   SpecialMove sm = NoMove;
-  if(PieceLogic::isMoveValid(this,move_begin,move_end,&sm))
+  if(PieceLogic::isMoveValid(this,move_begin,move_end,m.promote,&sm))
   {
+    addScore(BoardUtils::getPieceScore( getPiece(move_end) ));
+
     Square::movePiece(at( move_begin[0], move_begin[1] ),
                       at(   move_end[0],   move_end[1] ));
 
-    // en-passant / castling
-    switch(sm)
-    {
-      case MovedEnPassant:
-        at(move_end).setEnPassantTurn(getTurn());
-        break;
-      case CapturedEnPassant:
-        at(move_end[0],move_begin[1]).setPiece(Empty);
-        at(move_end[0],move_begin[1]).setPlayer(None);
-        at(move_end[0],move_begin[1]).setEnPassantTurn(-1);
-        break;
-      case CastleKingside:
-        Square::movePiece( at(7,move_begin[1]),at(5,move_begin[1])); 
-        break;
-      case CastleQueenside:
-        Square::movePiece( at(0,move_begin[1]),at(3,move_begin[1])); 
-        break;
-    }
-
+    // en-passant / castling / promition
+    performSpecialMove(move_begin,move_end,sm); 
 
     switchPlayer();
     return true;
@@ -221,6 +268,42 @@ bool Board::move(const Move& m)
   return false;
 }
 
+void Board::performSpecialMove(const int* begin,const int* end,SpecialMove sm)
+{
+  switch(sm)
+  {
+    case MovedEnPassant:
+      at(end).setEnPassantTurn(getTurn());
+      break;
+    case CapturedEnPassant:
+      at(end[0],begin[1]).setPiece(Empty);
+      at(end[0],begin[1]).setPlayer(None);
+      at(end[0],begin[1]).setEnPassantTurn(-1);
+      break;
+    case CastleKingside:
+      Square::movePiece( at(7,begin[1]),at(5,begin[1])); 
+      break;
+    case CastleQueenside:
+      Square::movePiece( at(0,begin[1]),at(3,begin[1])); 
+      break;
+    case PromoteKnight:
+      at(end).setPiece(Knight);
+      addScore(2);
+      break;
+    case PromoteBishop:
+      at(end).setPiece(Bishop);
+      addScore(2);
+      break;
+    case PromoteRook:
+      at(end).setPiece(Rook);
+      addScore(4);
+      break;
+    case PromoteQueen:
+      at(end).setPiece(Queen);
+      addScore(8);
+      break;
+  }
+}
 
 void Board::switchPlayer()
 {
@@ -242,7 +325,7 @@ bool Board::parseNotation(std::string notation,int* begin,int* end,
   // always 5 characters (except for 0-0 and 0-0-0)
   // a1 is the beginning place for the piece and b2 is the end
 
-  if(notation.size() != 5 && notation.size() != 2)
+  if(notation.size() < 2)
   {
     return false; 
   }
@@ -265,8 +348,34 @@ bool Board::parseNotation(std::string notation,int* begin,int* end,
     end[0]   = (notation.at(3) - 'a');
     end[1]   = (notation.at(4) - '1');
   }
+
+  Piece promotion = Empty;
+  if(notation.size() >= 7)
+  {
+    switch(notation.at(6))
+    {
+      case 'n':
+      case 'N':
+      case 'k':
+      case 'K':
+        promotion = Knight;
+        break;
+      case 'b':
+      case 'B':
+        promotion = Bishop;
+        break;
+      case 'r':
+      case 'R':
+        promotion = Rook;
+        break;
+      case 'q':
+      case 'Q':
+        promotion = Queen;
+        break;
+    }
+  }
   
-  return PieceLogic::isMoveValid(this,begin,end,sm);
+  return PieceLogic::isMoveValid(this,begin,end,promotion,sm);
 }
 
 Square& Board::at(const int* coord)
@@ -389,4 +498,38 @@ Player Board::getPlayerToMove() const
 int Board::getTurn() const
 {
   return turn;
+}
+
+int Board::getScore() const
+{
+  return score; 
+}
+
+bool Board::hasEnded() const
+{
+  int ws = BoardUtils::getWhiteScore(this);
+
+  // kings are worth 10000, so if white's score is outside this range
+  // one side has to be missing their king
+  if(ws > 9000 || ws < -9000)
+  {
+    return true;
+  }
+
+  // if the current player has no moves, it's stalemate
+  auto moves = BoardUtils::getPossibleMoves(this,playerToMove);
+
+  return moves.empty();
+}
+
+void Board::addScore(int s)
+{
+  if(playerToMove == White)
+  {
+    score += s;
+  }
+  else
+  {
+    score -= s;
+  }
 }
