@@ -1,0 +1,5 @@
+a 1 w k
+g 1 w q
+g 2 w q
+h 8 b k
+b 8 b r

@@ -27,6 +27,9 @@ const int GraphicsManager::text_width = 22;
 const int GraphicsManager::text_height = 38;
 const int GraphicsManager::text_spacing = 18;
 
+bool GraphicsManager::gameOver = false;
+std::string GraphicsManager::gameOverText = "";
+
 SDL_Window* GraphicsManager::window;
 SDL_Renderer* GraphicsManager::renderer;
 SDL_Texture** GraphicsManager::tex;
@@ -154,6 +157,11 @@ void GraphicsManager::renderBoardCS(const Board* board)
   pthread_mutex_lock(&event_mutex);
   std::string text = inputBuffer;
   pthread_mutex_unlock(&event_mutex);
+
+  if(gameOver)
+  {
+    text = gameOverText;
+  }
 
   renderString(text,border_size,
                (border_size * 3) + (square_size * 8) + 
@@ -573,4 +581,10 @@ bool GraphicsManager::programTerminated()
   bool retval = shouldQuit;
   pthread_mutex_unlock(&event_mutex);
   return retval;
+}
+
+void GraphicsManager::setGameOver(std::string str)
+{
+  gameOverText = str;
+  gameOver = true;
 }

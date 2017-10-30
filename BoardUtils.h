@@ -16,6 +16,10 @@ class BoardUtils
     static std::vector<Coord> getPieceMoves(const Board*,int,int);
 
     static int getPieceScore(Piece);
+    
+    static bool isSquareUnderAttack(const Board*,int,int,Player);
+    static bool isInCheck(const Board*,Player);
+    static bool isInCheckmate(const Board*,Player);
 
   private:
     BoardUtils();

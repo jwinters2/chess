@@ -158,44 +158,37 @@ void Board::makeIntoCopyOf(const Board& other)
 
 void Board::render() const
 {
-  if(true)//gm != nullptr)
-  {
-    GraphicsManager::renderBoard(this);
-  }
-  else
-  {
-    for(int y=board_height-1; y>=0; y--)
-    {
-      std::cout << "  +---+---+---+---+---+---+---+---+" << std::endl;
-      std::cout << y+1 << " ";
-      for(int x=0; x<board_width; x++)
-      {
-        std::cout << (board[x][y].getColor()==WhiteSquare?"|(":"| ");
-        board[x][y].render();
-        std::cout << (board[x][y].getColor()==WhiteSquare?")":" ");
-      }
-      std::cout << "|" << std::endl;
-    }
-    std::cout << "  +---+---+---+---+---+---+---+---+" << std::endl;
-    std::cout << "    ";
-    for(int x=0; x<board_width; x++)
-    {
-      std::cout << (char)('a' + x);
-      std::cout << "   ";
-    }
-    std::cout << std::endl;
-  }
+  GraphicsManager::renderBoard(this);
+}
 
-  /*
-  if(playerToMove == White)
+std::ostream& operator<<(std::ostream& out,const Board& b)
+{
+  for(int y=b.board_height-1; y>=0; y--)
   {
-    std::cout << "  White to move" << std::endl;
+    out << "  +---+---+---+---+---+---+---+---+" << std::endl;
+    out << y+1 << " ";
+    for(int x=0; x<b.board_width; x++)
+    {
+      out << (b.getColor(x,y)==WhiteSquare?"|(":"| ");
+
+      int offset = (b.getPlayer(x,y) == White ? 'A'-'a' : 0);
+      char c =  (char)(offset + b.getPiece(x,y));
+      out << (c == 'e' ? ' ' : c);
+
+      out << (b.getColor(x,y)==WhiteSquare?")":" ");
+    }
+    out << "|" << std::endl;
   }
-  else
+  out << "  +---+---+---+---+---+---+---+---+" << std::endl;
+  out << "    ";
+  for(int x=0; x<b.board_width; x++)
   {
-    std::cout << "  Black to move" << std::endl;
+    out << (char)('a' + x);
+    out << "   ";
   }
-  */
+  out << std::endl;
+
+  return out;
 }
 
 bool Board::move(std::string notation)
@@ -513,15 +506,30 @@ bool Board::hasEnded() const
 
   // kings are worth 10000, so if white's score is outside this range
   // one side has to be missing their king
-  if(ws > 9000 || ws < -9000)
+  //if(ws > 9000 || ws < -9000)
+  if(BoardUtils::isInCheckmate(this,playerToMove))
   {
+    GraphicsManager::setGameOver("Checkmate");
     return true;
   }
 
-  // if the current player has no moves, it's stalemate
+  // if the current player has no moves, it's either stalemate or checkmate
   auto moves = BoardUtils::getPossibleMoves(this,playerToMove);
 
-  return moves.empty();
+  if(moves.empty())
+  {
+    if(BoardUtils::isInCheck(this,playerToMove))
+    {
+      GraphicsManager::setGameOver("Checkmate");
+    }
+    else
+    {
+      GraphicsManager::setGameOver("Stalemate");
+    }
+    return true;
+  }
+
+  return false;
 }
 
 void Board::addScore(int s)

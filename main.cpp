@@ -87,5 +87,9 @@ int main(int argc, char** argv)
     b.render();
   }
 
+  while(!GraphicsManager::programTerminated())
+  {
+  }
+
   GraphicsManager::cleanup();
 }

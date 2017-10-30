@@ -369,3 +369,77 @@ std::vector<Coord> BoardUtils::getKingMoves(const Board* board,int s_x,int s_y)
 
   return retval;
 }
+
+bool BoardUtils::isSquareUnderAttack(const Board* board,
+                                     int s_x,int s_y,Player player)
+{
+  if(!board->areValidCoordinates(s_x,s_y))
+  {
+    return false;
+  }
+
+  Player enemy = (player == White ? Black : White);
+
+  int begin[2];
+  int end[2] = {s_x,s_y};
+
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      if(board->getPlayer(x,y) == enemy)
+      {
+        begin[0] = x;
+        begin[1] = y;
+        if( PieceLogic::isEitherMoveValid(board,begin,end,enemy,Empty,nullptr) )
+        {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+bool BoardUtils::isInCheck(const Board* board,Player player)
+{
+  for(int x=0; x<8; x++)
+  {
+    for(int y=0; y<8; y++)
+    {
+      if(board->getPlayer(x,y) == player && board->getPiece(x,y) == King)
+      {
+        //std::cout << x << "," << y << "  " << (player == White) << std::endl;
+        return(BoardUtils::isSquareUnderAttack(board,x,y,player));
+      }
+    }
+  }
+
+  return false;
+}
+
+bool BoardUtils::isInCheckmate(const Board* board,Player player)
+{
+  if(!isInCheck(board,player))
+  {
+    std::cout << "isInCheckmate = false (1)" << std::endl;
+    return false;
+  }
+
+  auto moves = BoardUtils::getPossibleMoves(board,player);
+  Board tempBoard;
+  for(auto it = moves.begin(); it != moves.end(); ++it)
+  {
+    tempBoard.makeIntoCopyOf(*board);
+    tempBoard.move(*it);
+
+    if(!isInCheck(&tempBoard,player))
+    {
+      //std::cout << tempBoard;
+      return false;
+    }
+  }
+
+  return true;
+}

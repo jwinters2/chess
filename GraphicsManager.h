@@ -43,6 +43,8 @@ class GraphicsManager
 
     static bool setRotateOnBlack(bool);
 
+    static void setGameOver(std::string);
+
   private:
     //GraphicsManager();
     //~GraphicsManager();
@@ -57,6 +59,9 @@ class GraphicsManager
     static std::string inputBuffer;
     static bool timeToReadInput;
     static bool shouldQuit;
+
+    static bool gameOver;
+    static std::string gameOverText;
 
     static const int square_size;
     static const int border_size;

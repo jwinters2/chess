@@ -9,6 +9,8 @@ class GraphicsManager;
 
 class Board
 {
+  friend std::ostream& operator<<(std::ostream&,const Board&);
+
   private:
     Square board[8][8];
 

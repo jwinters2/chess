@@ -3,10 +3,27 @@
 #include "Enums.h"
 #include "Square.h"
 #include "Board.h"
+#include "BoardUtils.h"
 
 bool PieceLogic::isMoveValid
      (const Board* board,const int* begin,const int* end,
       Piece promoteTo,SpecialMove* sm)
+{
+  return isEitherMoveValid(board,begin,end,
+                           board->getPlayerToMove(),promoteTo,sm);
+}
+
+bool PieceLogic::isEnemyMoveValid
+     (const Board* board,const int* begin,const int* end,
+      Piece promoteTo,SpecialMove* sm)
+{
+  Player enemy = (board->getPlayerToMove() == White ? Black : White);
+  return isEitherMoveValid(board,begin,end,enemy,promoteTo,sm);
+}
+
+bool PieceLogic::isEitherMoveValid
+     (const Board* board,const int* begin,const int* end,
+      Player currentPlayer,Piece promoteTo,SpecialMove* sm)
 {
   if(sm != nullptr)
   {
@@ -22,13 +39,13 @@ bool PieceLogic::isMoveValid
   }
 
   // check if the player is moving their own piece (or a piece at all)
-  if(board->getPlayer(begin) != board->getPlayerToMove())
+  if(board->getPlayer(begin) != currentPlayer)
   {
     return false;
   }
 
   // players can't capture their own pieces
-  if(board->getPlayer(end) == board->getPlayerToMove())
+  if(board->getPlayer(end) == currentPlayer)
   {
     return false;
   }
@@ -254,7 +271,9 @@ bool PieceLogic::isKingMoveValid
     {
       // if dx and dy aren't both 0, and end is [dx,dy] from begin, it's valid
       if( (dx != 0 || dy != 0)
-        && begin[0] + dx == end[0] && begin[1] + dy == end[1])
+        && begin[0] + dx == end[0] && begin[1] + dy == end[1]
+        && !BoardUtils::isSquareUnderAttack
+            (board,end[0],end[1],board->getPlayer(begin)) )
       {
         return true;
       }
@@ -274,8 +293,12 @@ bool PieceLogic::isKingMoveValid
       rookPos[1] = i;
 
       // if neither the king or the rook has moved, and
-      if(!board->getHasMoved(kingPos) && !board->getHasMoved(rookPos)
-      && board->getPiece(5,i) == Empty && board->getPiece(6,i) == Empty)
+      if(board->getPiece(rookPos) == Rook
+      && !board->getHasMoved(kingPos) && !board->getHasMoved(rookPos)
+      && board->getPiece(5,i) == Empty && board->getPiece(6,i) == Empty
+      && !BoardUtils::isSquareUnderAttack(board,4,i,board->getPlayer(begin)) 
+      && !BoardUtils::isSquareUnderAttack(board,5,i,board->getPlayer(begin)) 
+      && !BoardUtils::isSquareUnderAttack(board,6,i,board->getPlayer(begin)) )
       {
         /*
         Square::movePiece(at(kingPos),at(6,i));
@@ -305,9 +328,13 @@ bool PieceLogic::isKingMoveValid
       rookPos[1] = i;
 
       // if neither the king or the rook has moved, and
-      if(!board->getHasMoved(kingPos) && !board->getHasMoved(rookPos)
+      if(board->getPiece(rookPos) == Rook
+      && !board->getHasMoved(kingPos) && !board->getHasMoved(rookPos)
       && board->getPiece(3,i) == Empty && board->getPiece(2,i) == Empty
-      && board->getPiece(1,i) == Empty)
+      && board->getPiece(1,i) == Empty
+      && !BoardUtils::isSquareUnderAttack(board,4,i,board->getPlayer(begin)) 
+      && !BoardUtils::isSquareUnderAttack(board,3,i,board->getPlayer(begin)) 
+      && !BoardUtils::isSquareUnderAttack(board,2,i,board->getPlayer(begin)) )
       {
         /*
         Square::movePiece(at(kingPos),at(2,i));
@@ -324,5 +351,6 @@ bool PieceLogic::isKingMoveValid
       }
     }
   }
+
   return false;
 }

@@ -22,4 +22,8 @@ class PieceLogic
   public:
     static bool isMoveValid
                 (const Board*,const int*,const int*,Piece,SpecialMove*);
+    static bool isEnemyMoveValid
+                (const Board*,const int*,const int*,Piece,SpecialMove*);
+    static bool isEitherMoveValid
+                (const Board*,const int*,const int*,Player,Piece,SpecialMove*);
 };
