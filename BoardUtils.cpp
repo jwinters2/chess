@@ -391,7 +391,8 @@ bool BoardUtils::isSquareUnderAttack(const Board* board,
       {
         begin[0] = x;
         begin[1] = y;
-        if( PieceLogic::isEitherMoveValid(board,begin,end,enemy,Empty,nullptr) )
+        if( PieceLogic::isEitherMoveValid(board,begin,end,
+                                          enemy,Empty,nullptr,true) )
         {
           return true;
         }
@@ -423,7 +424,7 @@ bool BoardUtils::isInCheckmate(const Board* board,Player player)
 {
   if(!isInCheck(board,player))
   {
-    std::cout << "isInCheckmate = false (1)" << std::endl;
+    //std::cout << "isInCheckmate = false (1)" << std::endl;
     return false;
   }
 

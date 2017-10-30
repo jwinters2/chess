@@ -541,6 +541,29 @@ void* GraphicsManager::handleEvents(void* args)
           }
         }
       }
+      else if(e.type == SDL_MOUSEBUTTONDOWN && 
+              e.button.button == SDL_BUTTON_LEFT)
+      {
+        int mouse_x =      ( e.button.x - (border_size * 2)) / square_size;
+        int mouse_y = 7 - (( e.button.y -  border_size     ) / square_size);
+
+        mouse_x = rotate(mouse_x);
+        mouse_y = rotate(mouse_y);
+
+        switch(inputBuffer.size())
+        {
+          case 0:
+            inputBuffer.append(1,(char)(mouse_x + 'a'));
+            inputBuffer.append(1,(char)(mouse_y + '1'));
+            inputBuffer.append(1,'-');
+            break;
+          case 3:
+            inputBuffer.append(1,(char)(mouse_x + 'a'));
+            inputBuffer.append(1,(char)(mouse_y + '1'));
+            timeToReadInput = true;
+            break;
+        }
+      }
     }
     running = !childShouldTerminate;
     pthread_mutex_unlock(&event_mutex);

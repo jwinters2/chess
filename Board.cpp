@@ -240,13 +240,14 @@ bool Board::move(std::string notation)
   return false;
 }
 
-bool Board::move(const Move& m)
+bool Board::move(const Move& m,bool ignoreCheck)
 {
   int move_begin[2] = { m.start_x , m.start_y };
   int move_end[2]   = { m.end_x   , m.end_y   };
 
   SpecialMove sm = NoMove;
-  if(PieceLogic::isMoveValid(this,move_begin,move_end,m.promote,&sm))
+  if(PieceLogic::isMoveValid(this,move_begin,move_end,
+                             m.promote,&sm,ignoreCheck))
   {
     addScore(BoardUtils::getPieceScore( getPiece(move_end) ));
 

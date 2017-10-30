@@ -1,0 +1,5 @@
+a 1 w k
+b 2 w b
+g 1 w r
+g 7 b b
+g 8 b k

@@ -41,7 +41,7 @@ class Board
     void render() const;
 
     bool move(std::string);
-    bool move(const Move&);
+    bool move(const Move&,bool=false);
     void performSpecialMove(const int*,const int*,SpecialMove);
     bool parseNotation(std::string,int*,int*,SpecialMove*) const;
     Player getPlayerToMove() const;

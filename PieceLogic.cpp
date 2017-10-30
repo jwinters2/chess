@@ -7,23 +7,23 @@
 
 bool PieceLogic::isMoveValid
      (const Board* board,const int* begin,const int* end,
-      Piece promoteTo,SpecialMove* sm)
+      Piece promoteTo,SpecialMove* sm,bool ignoreCheck)
 {
   return isEitherMoveValid(board,begin,end,
-                           board->getPlayerToMove(),promoteTo,sm);
+                           board->getPlayerToMove(),promoteTo,sm,ignoreCheck);
 }
 
 bool PieceLogic::isEnemyMoveValid
      (const Board* board,const int* begin,const int* end,
-      Piece promoteTo,SpecialMove* sm)
+      Piece promoteTo,SpecialMove* sm,bool ignoreCheck)
 {
   Player enemy = (board->getPlayerToMove() == White ? Black : White);
-  return isEitherMoveValid(board,begin,end,enemy,promoteTo,sm);
+  return isEitherMoveValid(board,begin,end,enemy,promoteTo,sm,ignoreCheck);
 }
 
 bool PieceLogic::isEitherMoveValid
      (const Board* board,const int* begin,const int* end,
-      Player currentPlayer,Piece promoteTo,SpecialMove* sm)
+      Player currentPlayer,Piece promoteTo,SpecialMove* sm,bool ignoreCheck)
 {
   if(sm != nullptr)
   {
@@ -48,6 +48,18 @@ bool PieceLogic::isEitherMoveValid
   if(board->getPlayer(end) == currentPlayer)
   {
     return false;
+  }
+
+  // players can't put themselves in check
+  if(!ignoreCheck)
+  {
+    Board tempBoard(*board);
+    Move m(begin[0],begin[1],end[0],end[1],promoteTo);
+    tempBoard.move(m,true);
+    if(BoardUtils::isInCheck(&tempBoard,currentPlayer))
+    {
+      return false;
+    }
   }
 
   SpecialMove tempsm;
@@ -85,22 +97,23 @@ bool PieceLogic::isEitherMoveValid
         return true;
       }
     case Knight:
-      return isKnightMoveValid (board,begin,end);
+      return isKnightMoveValid (board,begin,end,ignoreCheck);
     case Bishop:
-      return isBishopMoveValid (board,begin,end);
+      return isBishopMoveValid (board,begin,end,ignoreCheck);
     case Rook:
-      return isRookMoveValid   (board,begin,end);
+      return isRookMoveValid   (board,begin,end,ignoreCheck);
     case Queen:
-      return isQueenMoveValid  (board,begin,end);
+      return isQueenMoveValid  (board,begin,end,ignoreCheck);
     case King:
-      return isKingMoveValid   (board,begin,end,sm);
+      return isKingMoveValid   (board,begin,end,sm,ignoreCheck);
     default:
       return false;
   }
 }
 
 bool PieceLogic::isPawnMoveValid
-     (const Board* board,const int* begin,const int* end,SpecialMove* sm)
+     (const Board* board,const int* begin,const int* end,SpecialMove* sm,
+      bool ignoreCheck)
 {
   int direction;
   if(board->getPlayer(begin) == White)
@@ -165,7 +178,7 @@ bool PieceLogic::isPawnMoveValid
 }
 
 bool PieceLogic::isKnightMoveValid
-     (const Board* board,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end,bool ignoreCheck)
 {
   for(int dx = -1; dx <= 1; dx += 2)
   {
@@ -183,7 +196,7 @@ bool PieceLogic::isKnightMoveValid
 }
                 
 bool PieceLogic::isBishopMoveValid
-     (const Board* board,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end,bool ignoreCheck)
 {
   // bishop moves must be diagonal (dx == dy or dx == -dy)
   if(begin[0] - end[0] != begin[1] - end[1]
@@ -215,7 +228,7 @@ bool PieceLogic::isBishopMoveValid
 }
 
 bool PieceLogic::isRookMoveValid
-     (const Board* board,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end,bool ignoreCheck)
 {
   // rook moves must be orthogonal (dx == 0 or dy == 0)
   if(begin[0] != end[0] && begin[1] != end[1])
@@ -256,14 +269,15 @@ bool PieceLogic::isRookMoveValid
 }
 
 bool PieceLogic::isQueenMoveValid
-     (const Board* board,const int* begin,const int* end)
+     (const Board* board,const int* begin,const int* end,bool ignoreCheck)
 {
-  return (isBishopMoveValid(board,begin,end) 
-       || isRookMoveValid(board,begin,end));
+  return (isBishopMoveValid(board,begin,end,ignoreCheck) 
+       || isRookMoveValid(board,begin,end,ignoreCheck));
 }
 
 bool PieceLogic::isKingMoveValid
-     (const Board* board,const int* begin,const int* end,SpecialMove* sm)
+     (const Board* board,const int* begin,const int* end,SpecialMove* sm,
+      bool ignoreCheck)
 {
   for(int dx=-1; dx<=1; dx++)
   {
@@ -272,8 +286,8 @@ bool PieceLogic::isKingMoveValid
       // if dx and dy aren't both 0, and end is [dx,dy] from begin, it's valid
       if( (dx != 0 || dy != 0)
         && begin[0] + dx == end[0] && begin[1] + dy == end[1]
-        && !BoardUtils::isSquareUnderAttack
-            (board,end[0],end[1],board->getPlayer(begin)) )
+        && !(!ignoreCheck && BoardUtils::isSquareUnderAttack
+            (board,end[0],end[1],board->getPlayer(begin))) )
       {
         return true;
       }
