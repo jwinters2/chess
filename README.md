@@ -4,7 +4,7 @@ INSTRUCTIONS:
 
 To compile:
 
-    $ g++ *.cpp -lSDL2 -lpthread -o chess
+    $ g++ --std=c++11 *.cpp -lSDL2 -lpthread -O3 -o chess
 
   make sure you have SDL 2.0 installed, on linux the command is:
 
@@ -17,7 +17,7 @@ To compile:
 
 To run:
 
-    ./chess [ -r | -d DEPTH | -c | -h ]
+    ./chess [ -r | -d DEPTH | -c | -h | -o ]
 
   -r will rotate the board when it's black's turn, so
   both players will be playing from the bottom.
@@ -51,16 +51,6 @@ To exit:
   Ctrl-c or Ctrl-q
   
 To do (for me):
-
-- support stricter rules for castling
-  (the king can't pass through check when castling in 
-  official chess, but can here)
-
-- prevent the king from moving into check
-
-- tell when the game is over
-
-- detect stalemate and consider it a draw
 
 - a better chess A.I. to play against
 
