@@ -19,13 +19,21 @@ To run:
 
     ./chess [ -r | -d DEPTH | -c | -h ]
 
-  the -r option will rotate the board when it's black's turn, so
+  -r will rotate the board when it's black's turn, so
   both players will be playing from the bottom.
 
-  the -d option will set the search depth of the computer opponent,
-  the higher d is, the smarter and slower it is.  The default value is 3
+  -d will set the search depth of the computer opponent,
+  the higher d is, the smarter and slower it is.  The default value is 3.
 
-  -c and -h will set the opponent to be a computer or a human respectively
+  -h will set the opponent to be a second human and not the computer
+
+  -o will setup the board according to a file rather than the starting position.
+  these files are stored in boardstates/, end in .bs and use the following
+  syntax:
+
+    <x> <y> <color> <piece>
+
+  so "a 2 w q" means a white queen at square a2.
 
 To play:
 
