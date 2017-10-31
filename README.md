@@ -49,13 +49,8 @@ To play:
   Castling is either "O-O" for kingside, and "O-O-O" for queenside.
   Lowercase O's ("o") and zeros ("0") will also work.
 
-  Promotion is written as "a7-b8-q" or "a7 a8 q", which will move from a7 to a8,
-  promoting to a queen.
-
   You can also click on the starting square, then the ending square, or the
-  starting square again to cancel the selection.  As of now, you cannot
-  promote a pawn with only the mouse.  I'll have to write a piece-selection-menu
-  at some point.  But for now please just type the move.
+  starting square again to cancel the selection.
 
 To exit:
   
@@ -64,8 +59,6 @@ To exit:
 To do (for me):
 
 - a better chess A.I. to play against (it can always be improved)
-
-- a mouse-based pawn-promotion menu
 
 - fix memory leaks (SDL 2.0 is weird, literally opening and closing it loses
   like 300 bytes, and somehow leaving it open loses less)

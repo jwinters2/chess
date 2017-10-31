@@ -18,6 +18,8 @@ pthread_t GraphicsManager::render_tid;
 pthread_t GraphicsManager::event_tid;
 std::string GraphicsManager::inputBuffer = "";
 bool GraphicsManager::timeToReadInput = false;
+bool GraphicsManager::displayPromotionMenu = false;
+Piece GraphicsManager::promotionPiece = Empty;
 bool GraphicsManager::shouldQuit = false;
 
 const int GraphicsManager::square_size = 80;
@@ -106,6 +108,8 @@ bool GraphicsManager::init()
   loadTexture(selection_red,    "selection_red");
   loadTexture(selection_blue,   "selection_blue");
   loadTexture(selection_circle, "selection_circle");
+
+  loadTexture(promotion_menu, "promotion_menu");
 
   pthread_create(&render_tid,NULL,renderInThread,NULL);
   pthread_create(&event_tid,NULL,handleEvents,NULL);
@@ -236,6 +240,30 @@ void GraphicsManager::renderBoardCS(const Board* board)
                     (border_size*2) + (square_size * (x+1) ) 
                     - (square_size/2) - (text_width/2),
                     border_size + (square_size * 8));
+  }
+
+  // render the promotionMenu
+  if(displayPromotionMenu)
+  {
+    pos.x = xGridToCoord(2) - (square_size/2);
+    pos.y = yGridToCoord(4) - (square_size/2);
+    pos.w = (5*square_size);
+    pos.h = (2*square_size);
+    renderTexture(promotion_menu,&pos);
+
+    pos.y = yGridToCoord(4);
+    pos.w = square_size;
+    pos.h = square_size;
+    int o = (board->getPlayerToMove() == White ? 0 : black_pawn - white_pawn);
+    
+    pos.x = xGridToCoord(2);
+    renderTexture((Texture)(white_knight + o),&pos);
+    pos.x = xGridToCoord(3);
+    renderTexture((Texture)(white_bishop + o),&pos);
+    pos.x = xGridToCoord(4);
+    renderTexture((Texture)(white_rook + o),&pos);
+    pos.x = xGridToCoord(5);
+    renderTexture((Texture)(white_queen + o),&pos);
   }
 
   SDL_RenderPresent(renderer);
@@ -502,6 +530,7 @@ void* GraphicsManager::handleEvents(void* args)
     {
       if(e.type == SDL_QUIT)
       {
+        inputBuffer = "Goodbye!";
         shouldQuit = true; 
       }
       else if(e.type == SDL_KEYDOWN)
@@ -531,24 +560,48 @@ void* GraphicsManager::handleEvents(void* args)
             inputBuffer = "Goodbye!";
             shouldQuit = true;
           }
-          else if(strlen(fullkey) == 1 && key >= 'A' && key <= 'Z')
-          {
-            inputBuffer.append(1,key - 'A' + 'a');
-          }
           else if(strlen(fullkey) == 1 && key >= '!' && key <= '~')
           {
+            // shift to lowercase
+            if(key >= 'A' && key <= 'Z')
+            {
+              key += ('a' - 'A');
+            }
+
             inputBuffer.append(1,key);
+            if(displayPromotionMenu)
+            {
+              switch(key)
+              {
+                case 'n':
+                  promotionPiece = Knight;
+                  break;
+                case 'b':
+                  promotionPiece = Bishop;
+                  break;
+                case 'r':
+                  promotionPiece = Rook;
+                  break;
+                case 'q':
+                  promotionPiece = Queen;
+                  break;
+                default:
+                  promotionPiece = Empty;
+                  break;
+              }
+              displayPromotionMenu = false;
+            }
           }
         }
       }
       else if(e.type == SDL_MOUSEBUTTONDOWN && 
               e.button.button == SDL_BUTTON_LEFT)
       {
-        int mouse_x =      ( e.button.x - (border_size * 2)) / square_size;
-        int mouse_y = 7 - (( e.button.y -  border_size     ) / square_size);
+        int mouse_x_raw =      ( e.button.x - (border_size * 2)) / square_size;
+        int mouse_y_raw = 7 - (( e.button.y -  border_size     ) / square_size);
 
-        mouse_x = rotate(mouse_x);
-        mouse_y = rotate(mouse_y);
+        int mouse_x = rotate(mouse_x_raw);
+        int mouse_y = rotate(mouse_y_raw);
 
         switch(inputBuffer.size())
         {
@@ -562,6 +615,34 @@ void* GraphicsManager::handleEvents(void* args)
             inputBuffer.append(1,(char)(mouse_y + '1'));
             timeToReadInput = true;
             break;
+        }
+
+        if(displayPromotionMenu)
+        {
+          if(mouse_y_raw == 4 && mouse_x_raw >= 2 && mouse_x_raw <= 5)
+          {
+            inputBuffer.append(1,'-');
+            switch(mouse_x_raw)
+            {
+              case 2:
+                promotionPiece = Knight;
+                break;
+              case 3:
+                promotionPiece = Bishop;
+                break;
+              case 4:
+                promotionPiece = Rook;
+                break;
+              case 5:
+                promotionPiece = Queen;
+                break;
+            }
+          }
+          else
+          {
+            promotionPiece = Empty;
+          }
+          displayPromotionMenu = false;
         }
       }
     }
@@ -586,6 +667,7 @@ std::string GraphicsManager::getInput()
     if(ready)
     {
       timeToReadInput = false;
+      displayPromotionMenu = false;
       inputBuffer = "";
     }
 
@@ -596,6 +678,33 @@ std::string GraphicsManager::getInput()
 
   //std::cout << "getInput() return " << retval << std::endl;
   return retval; 
+}
+
+Piece GraphicsManager::getPromotion()
+{
+  Piece retval;
+  bool ready = false;
+  displayPromotionMenu = true;
+
+  while(!ready && !shouldQuit)
+  {
+    pthread_mutex_lock(&event_mutex);
+    
+    ready = !displayPromotionMenu;
+    retval = promotionPiece;
+
+    if(ready)
+    {
+      promotionPiece = Empty;
+      displayPromotionMenu = false;
+      inputBuffer = "";
+    }
+
+    pthread_mutex_unlock(&event_mutex);
+    SDL_Delay(30);
+  }
+
+  return retval;
 }
 
 bool GraphicsManager::programTerminated()

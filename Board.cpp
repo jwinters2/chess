@@ -356,6 +356,18 @@ bool Board::parseNotation(std::string notation,int* begin,int* end,
   }
 
   Piece promotion = Empty;
+  
+  if( getPiece(begin) == Pawn &&
+    ((getPlayer(begin) == White && begin[1] == 6 && end[1] == 7)
+  || (getPlayer(begin) == Black && begin[1] == 1 && end[1] == 0)))
+  {
+    promotion = GraphicsManager::getPromotion();
+    if(promotion == Empty)
+    {
+      return false;
+    }
+  }
+  /*
   if(notation.size() >= 7)
   {
     switch(notation.at(6))
@@ -380,6 +392,7 @@ bool Board::parseNotation(std::string notation,int* begin,int* end,
         break;
     }
   }
+  */
   
   return PieceLogic::isMoveValid(this,begin,end,promotion,sm);
 }

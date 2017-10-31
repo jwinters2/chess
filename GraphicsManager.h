@@ -4,6 +4,8 @@
 #include <string>
 #include <pthread.h>
 
+#include "Enums.h"
+
 enum Texture
 {
   background = 0,
@@ -25,6 +27,7 @@ enum Texture
   selection_red,
   selection_blue,
   selection_circle,
+  promotion_menu,
   TEXTURE_COUNT
 };
 
@@ -39,6 +42,7 @@ class GraphicsManager
     static void renderBoard(const Board*);
 
     static std::string getInput();
+    static Piece getPromotion();
     static bool programTerminated();
 
     static bool setRotateOnBlack(bool);
@@ -58,6 +62,8 @@ class GraphicsManager
 
     static std::string inputBuffer;
     static bool timeToReadInput;
+    static bool displayPromotionMenu;
+    static Piece promotionPiece;
     static bool shouldQuit;
 
     static bool gameOver;
