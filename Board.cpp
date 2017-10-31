@@ -118,6 +118,8 @@ void Board::setupFromFile(std::ifstream& in)
         break;
     }
   }
+
+  score = BoardUtils::getWhiteScore(this);
 }
 
 void Board::clearBoard()
@@ -275,6 +277,7 @@ void Board::performSpecialMove(const int* begin,const int* end,SpecialMove sm)
       at(end[0],begin[1]).setPiece(Empty);
       at(end[0],begin[1]).setPlayer(None);
       at(end[0],begin[1]).setEnPassantTurn(-1);
+      addScore(BoardUtils::getPieceScore(Pawn));
       break;
     case CastleKingside:
       Square::movePiece( at(7,begin[1]),at(5,begin[1])); 
@@ -285,18 +288,25 @@ void Board::performSpecialMove(const int* begin,const int* end,SpecialMove sm)
     case PromoteKnight:
       at(end).setPiece(Knight);
       addScore(2);
+      addScore(BoardUtils::getPieceScore(Knight) 
+             - BoardUtils::getPieceScore(Pawn));
       break;
     case PromoteBishop:
       at(end).setPiece(Bishop);
       addScore(2);
+      addScore(BoardUtils::getPieceScore(Bishop) 
+             - BoardUtils::getPieceScore(Pawn));
       break;
     case PromoteRook:
       at(end).setPiece(Rook);
       addScore(4);
+      addScore(BoardUtils::getPieceScore(Rook) 
+             - BoardUtils::getPieceScore(Pawn));
       break;
     case PromoteQueen:
       at(end).setPiece(Queen);
-      addScore(8);
+      addScore(BoardUtils::getPieceScore(Queen) 
+             - BoardUtils::getPieceScore(Pawn));
       break;
   }
 }
@@ -503,14 +513,18 @@ int Board::getScore() const
 
 bool Board::hasEnded() const
 {
-  int ws = BoardUtils::getWhiteScore(this);
-
   // kings are worth 10000, so if white's score is outside this range
   // one side has to be missing their king
   //if(ws > 9000 || ws < -9000)
   if(BoardUtils::isInCheckmate(this,playerToMove))
   {
     GraphicsManager::setGameOver("Checkmate");
+    return true;
+  }
+
+  if(BoardUtils::isBareKings(this))
+  {
+    GraphicsManager::setGameOver("Stalemate");
     return true;
   }
 

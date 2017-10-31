@@ -11,6 +11,7 @@ int main(int argc, char** argv)
   int opponentDepth = 3;
   bool rob = false;
   bool computerOp = true;
+  bool computerWhite = false;
   bool readFromFile = false;
   std::string filename = "";
 
@@ -37,6 +38,10 @@ int main(int argc, char** argv)
     {
        computerOp = false;
     }
+    else if(strcmp(argv[i],"-c") == 0)
+    {
+       computerWhite = true;
+    }
     else if(strcmp(argv[i],"-o") == 0)
     {
       readFromFile = true;
@@ -58,6 +63,7 @@ int main(int argc, char** argv)
   GraphicsManager::setRotateOnBlack(rob);
   Board b;
   Opponent o(opponentDepth,Black);
+  Opponent w(opponentDepth,White);
 
   if(readFromFile)
   {
@@ -74,14 +80,29 @@ int main(int argc, char** argv)
   
   while(!GraphicsManager::programTerminated() && !b.hasEnded())
   {
-    if(b.getPlayerToMove() == White || !computerOp)
+    if(b.getPlayerToMove() == White)
     {
-      input = GraphicsManager::getInput();
-      b.move(input);
+      if(computerWhite)
+      {
+        b.move(w.getMove(&b));
+      }
+      else
+      {
+        input = GraphicsManager::getInput();
+        b.move(input);
+      }
     }
     else
     {
-      b.move(o.getMove(&b));
+      if(computerOp)
+      {
+        b.move(o.getMove(&b));
+      }
+      else
+      {
+        input = GraphicsManager::getInput();
+        b.move(input);
+      }
     }
 
     b.render();

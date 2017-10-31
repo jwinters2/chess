@@ -54,7 +54,7 @@ bool PieceLogic::isEitherMoveValid
   if(!ignoreCheck)
   {
     Board tempBoard(*board);
-    Move m(begin[0],begin[1],end[0],end[1],promoteTo);
+    Move m(begin[0],begin[1],end[0],end[1],promoteTo,0);
     tempBoard.move(m,true);
     if(BoardUtils::isInCheck(&tempBoard,currentPlayer))
     {

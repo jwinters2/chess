@@ -27,6 +27,9 @@ To run:
 
   -h will set the opponent to be a second human and not the computer
 
+  -c will set white to be another computer, so you can watch 2 min-max
+  algorithms play against eachother
+
   -o will setup the board according to a file rather than the starting position.
   these files are stored in boardstates/, end in .bs and use the following
   syntax:

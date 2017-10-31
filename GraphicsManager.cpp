@@ -179,10 +179,10 @@ void GraphicsManager::renderBoardCS(const Board* board)
   
   std::string statusText = "";
 
-  statusText += std::to_string( (1 + board->getTurn()) / 2 );
-  statusText += " ";
-  statusText += std::to_string(board->getScore());
-  statusText += " ";
+  //statusText += std::to_string( (1 + board->getTurn()) / 2 );
+  //statusText += " ";
+  //statusText += std::to_string(board->getScore());
+  //statusText += " ";
   statusText += playerToMove;
 
   renderString(statusText,
