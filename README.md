@@ -19,20 +19,20 @@ To run:
 
     ./chess [ -r | -d DEPTH | -c | -h | -o ]
 
-  -r will rotate the board when it's black's turn, so
+  -r, --rotate will rotate the board when it's black's turn, so
   both players will be playing from the bottom.
 
-  -d will set the search depth of the computer opponent,
+  -d, --depth will set the search depth of the computer opponent,
   the higher d is, the smarter and slower it is.  The default value is 3.
 
-  -h will set the opponent to be a second human and not the computer
+  -h, --human will set the opponent to be a second human and not the computer
 
-  -c will set white to be another computer, so you can watch 2 min-max
-  algorithms play against eachother
+  -c, --computer will set white to be another computer, so you can watch 2 
+  min-max algorithms play against eachother
 
-  -o will setup the board according to a file rather than the starting position.
-  these files are stored in boardstates/, end in .bs and use the following
-  syntax:
+  -o, --open will setup the board according to a file rather than the starting 
+  position.  These files are stored in boardstates/, end in .bs and use the 
+  following syntax:
 
     <x> <y> <color> <piece>
 
@@ -49,13 +49,23 @@ To play:
   Castling is either "O-O" for kingside, and "O-O-O" for queenside.
   Lowercase O's ("o") and zeros ("0") will also work.
 
+  Promotion is written as "a7-b8-q" or "a7 a8 q", which will move from a7 to a8,
+  promoting to a queen.
+
+  You can also click on the starting square, then the ending square, or the
+  starting square again to cancel the selection.  As of now, you cannot
+  promote a pawn with only the mouse.  I'll have to write a piece-selection-menu
+  at some point.  But for now please just type the move.
+
 To exit:
   
   Ctrl-c or Ctrl-q
   
 To do (for me):
 
-- a better chess A.I. to play against
+- a better chess A.I. to play against (it can always be improved)
+
+- a mouse-based pawn-promotion menu
 
 - fix memory leaks (SDL 2.0 is weird, literally opening and closing it loses
   like 300 bytes, and somehow leaving it open loses less)

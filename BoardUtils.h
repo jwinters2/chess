@@ -21,6 +21,7 @@ class BoardUtils
     static bool isInCheck(const Board*,Player);
     static bool isInCheckmate(const Board*,Player);
     static bool isBareKings(const Board*);
+    static bool isStalemate(const Board*,Player,const std::vector<Move>&);
 
   private:
     BoardUtils();

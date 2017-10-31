@@ -382,7 +382,9 @@ bool BoardUtils::isSquareUnderAttack(const Board* board,
         begin[0] = x;
         begin[1] = y;
         if( PieceLogic::isEitherMoveValid(board,begin,end,
-                                          enemy,Empty,nullptr,true) )
+                                          enemy,Empty,nullptr,true) 
+        && (board->getPiece(begin) != Pawn
+        || PieceLogic::isPawnAttacking(board,begin,end,enemy)) )
         {
           return true;
         }
@@ -437,9 +439,9 @@ bool BoardUtils::isInCheckmate(const Board* board,Player player)
 
 bool BoardUtils::isBareKings(const Board* board)
 {
-  for(int x=0; x<=8; x++)
+  for(int x=0; x<8; x++)
   {
-    for(int y=0; y<=8; y++)
+    for(int y=0; y<8; y++)
     {
       if(board->getPiece(x,y) != Empty && board->getPiece(x,y) != King)
       {
@@ -449,6 +451,17 @@ bool BoardUtils::isBareKings(const Board* board)
   }
 
   return true;
+}
+
+bool BoardUtils::isStalemate(const Board* board,Player player,
+                             const std::vector<Move>& moves)
+{
+  if(isBareKings(board))
+  {
+    return true;
+  }
+
+  return (moves.empty() && !isInCheck(board,player));
 }
 
 int BoardUtils::countPieceMoves (const Board* board,int s_x,int s_y)

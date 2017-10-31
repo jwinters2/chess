@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv)
 {
-  int opponentDepth = 3;
+  int opponentDepth = 4;
   bool rob = false;
   bool computerOp = true;
   bool computerWhite = false;
@@ -17,11 +17,11 @@ int main(int argc, char** argv)
 
   for(int i=1; i<argc; i++)
   {
-    if(strcmp(argv[i],"-r") == 0)
+    if(strcmp(argv[i],"-r") == 0 || strcmp(argv[i],"--rotate") == 0)
     {
       rob = true;
     }
-    else if(strcmp(argv[i],"-d") == 0)
+    else if(strcmp(argv[i],"-d") == 0 || strcmp(argv[i],"--depth") == 0)
     {
       if(i+1 < argc)
       {
@@ -34,15 +34,15 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
       }
     }
-    else if(strcmp(argv[i],"-h") == 0)
+    else if(strcmp(argv[i],"-h") == 0 || strcmp(argv[i],"--human") == 0)
     {
        computerOp = false;
     }
-    else if(strcmp(argv[i],"-c") == 0)
+    else if(strcmp(argv[i],"-c") == 0 || strcmp(argv[i],"--computer") == 0)
     {
        computerWhite = true;
     }
-    else if(strcmp(argv[i],"-o") == 0)
+    else if(strcmp(argv[i],"-o") == 0 || strcmp(argv[i],"--open") == 0)
     {
       readFromFile = true;
       if(i+1 < argc)

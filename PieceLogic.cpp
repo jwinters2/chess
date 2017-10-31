@@ -67,7 +67,7 @@ bool PieceLogic::isEitherMoveValid
   switch(board->getPiece(begin))
   {
     case Pawn:
-      if(isPawnMoveValid   (board,begin,end,sm))
+      if(isPawnMoveValid(board,begin,end,sm))
       {
         if(end[1] == 7 || end[1] == 0)
         {
@@ -96,6 +96,7 @@ bool PieceLogic::isEitherMoveValid
         }
         return true;
       }
+      return false;
     case Knight:
       return isKnightMoveValid (board,begin,end,ignoreCheck);
     case Bishop:
@@ -279,6 +280,8 @@ bool PieceLogic::isKingMoveValid
      (const Board* board,const int* begin,const int* end,SpecialMove* sm,
       bool ignoreCheck)
 {
+  // DX AND DY SHOULD GO FROM -1 TO 1
+  // THIS IS JUST FOR TESTING
   for(int dx=-1; dx<=1; dx++)
   {
     for(int dy=-1; dy<=1; dy++)
@@ -367,4 +370,17 @@ bool PieceLogic::isKingMoveValid
   }
 
   return false;
+}
+
+bool PieceLogic::isPawnAttacking(const Board* board,
+                 const int* begin,const int* end,Player p)
+{
+  int direction = (p == White ? 1 : -1);
+
+  if(begin[1] + direction != end[1])
+  {
+    return false;
+  }
+
+  return (begin[0] + 1 == end[0] || begin[0] - 1 == end[0]);
 }

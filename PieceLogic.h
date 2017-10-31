@@ -33,4 +33,5 @@ class PieceLogic
     static bool isEitherMoveValid
                 (const Board*,const int*,const int*,
                  Player,Piece,SpecialMove*,bool=false);
+    static bool isPawnAttacking(const Board*,const int*,const int*,Player);
 };

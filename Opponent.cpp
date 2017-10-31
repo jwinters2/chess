@@ -37,14 +37,24 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
     assert(score == BoardUtils::getWhiteScore(board));
   }*/
 
-  if(d <= 0 || BoardUtils::isInCheckmate(board,currentPlayer))
+  if(d <= 0) 
   {
     return score;
   }
 
-  //std::cout << "minmax, d = " << d << std::endl;
+  if(BoardUtils::isInCheckmate(board,currentPlayer))
+  {
+    return scoreLowerBound(currentPlayer);
+  }
 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,currentPlayer);
+
+  if(BoardUtils::isStalemate(board,currentPlayer,moves))
+  {
+    return 0;
+  }
+
+  //std::cout << "minmax, d = " << d << std::endl;
 
   int bestScore = scoreLowerBound(currentPlayer);
 
@@ -74,7 +84,8 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
 
     if(isBetterThanEqualTo(currentPlayer,bestScore,alphabeta))
     {
-      return bestScore;
+      // guarantees that our parent in the search tree won't pick us
+      return scoreLowerBound(nextPlayer(currentPlayer));
     }
   }
 
@@ -174,6 +185,14 @@ Player Opponent::nextPlayer(Player p) const
 
 void Opponent::sortMoves(Player player,std::vector<Move>& moves) const
 {
+  for(int i = moves.size()-1; i>=0; i--)
+  {
+    int j = rand() % (i+1);
+    Move buffer = moves[i];
+    moves[i] = moves[j];
+    moves[j] = buffer;
+  }
+
   if(player == White)
   {
     std::sort(moves.begin(),moves.end(),compareMovesWhite);

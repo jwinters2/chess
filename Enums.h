@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 enum Piece { Empty='e', Pawn='p', Knight='n', Bishop='b', Rook='r', 
              Queen='q', King='k' };
 enum Player { None, White, Black };
@@ -55,3 +57,6 @@ struct Coord
   {
   }
 };
+
+std::ostream& operator<<(std::ostream&,const Move&);
+std::ostream& operator<<(std::ostream&,const Coord&);
