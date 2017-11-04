@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <cstdio>
+#include <cstdlib>
 
 #include <cassert>
 #define NDEBUG
@@ -24,7 +25,10 @@ void TrainingData::parse() const
   int gameCount = 1;
   char buffer[256];
 
-  outFile.open("training_data/move_" + intToString(gameCount) + ".data");
+  system( "mkdir training_data" );
+  system(("mkdir training_data/set_" + intToString(1)).c_str());
+  outFile.open("training_data/set_" + intToString(1) + "/move_" + 
+               intToString(gameCount) + ".data");
 
   for(int i=beginningIndex; i<endingIndex; i++)
   {
@@ -162,7 +166,7 @@ bool TrainingData::isInRange(char c,char a,char b)
 
 std::string TrainingData::intToString(int a)
 {
-  std::string zeros = "00000000";
+  std::string zeros = "00000";
   int temp = a;
   while (temp != 0)
   {
@@ -503,8 +507,11 @@ void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
   if(out.is_open())
   {
     out.close();
-    std::string outFileName = "training_data/move_" + 
-                              intToString(count) + ".data";
+    int moveNum = (count % 10000) + 1;
+    int folderNum = (count / 10000) + 1;
+    std::string outFileName = "training_data/set_" + 
+                              intToString(folderNum) + "/move_" +
+                              intToString(moveNum) + ".data";
 
     // if the game was parsed successfully, increment the count
     if(success)
@@ -517,7 +524,17 @@ void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
       remove(outFileName.c_str());
     }
 
-    outFileName = "training_data/move_" + intToString(count) + ".data";
+    // make a new folder if we have to
+    if(folderNum != (count / 10000) + 1)
+    {
+      folderNum = (count / 10000) + 1;
+      system(("mkdir training_data/set_" + intToString(folderNum)).c_str());
+    }
+
+    moveNum = (count % 10000) + 1;
+    outFileName = "training_data/set_" + intToString(folderNum) + "/move_" +
+                  intToString(moveNum) + ".data";
+
     out.open(outFileName);
   }
 }
