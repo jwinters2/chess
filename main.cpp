@@ -5,6 +5,7 @@
 #include "GraphicsManager.h"
 #include "Board.h"
 #include "Opponent.h"
+#include "TrainingData.h"
 
 int main(int argc, char** argv)
 {
@@ -55,6 +56,12 @@ int main(int argc, char** argv)
         std::cerr << "invalid use of -o, needs a filename" << std::endl;
         exit(EXIT_FAILURE);
       }
+    }
+    else if(strcmp(argv[i],"--parse-training-data") == 0)
+    {
+      TrainingData t(i+1,argc,argv);
+      t.parse();
+      return 0;
     }
   }
 

@@ -7,12 +7,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-//#include <cassert>
 
 // uncomment to allow asserts
+//#include <cassert>
 //#define NDEBUG
 
-const int Opponent::endSearchDepth = 2;
+const int Opponent::endSearchDepth = 4;
 
 Opponent::Opponent(int d,Player p):depth(d),player(p)
 {
@@ -24,22 +24,11 @@ Opponent::~Opponent()
 }
 
 int Opponent::minmax(const Board* board,Player currentPlayer,
-                    int d,int alphabeta) const
+                    int d,int alpha,int beta) const
 {
-  int score = BoardUtils::getWhiteScore(board);
-  
-  /*if(score != BoardUtils::getWhiteScore(board))
-  {
-    std::cout << *board << std::endl;
-    std::cout << "board->getScore()           = " << score << std::endl;
-    std::cout << "BoardUtils::getWhiteScore() = ";
-    std::cout << BoardUtils::getWhiteScore(board) << std::endl;
-    assert(score == BoardUtils::getWhiteScore(board));
-  }*/
-
   if(d <= 0) 
   {
-    return score;
+    return BoardUtils::getWhiteScore(board);
   }
 
   if(BoardUtils::isInCheckmate(board,currentPlayer))
@@ -48,7 +37,51 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
   }
 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,currentPlayer);
+  sortMoves(currentPlayer,moves);
 
+  int score;
+  Board tempBoard;
+  for(auto it = moves.begin(); it != moves.end(); ++it)
+  {
+    tempBoard.makeIntoCopyOf(*board);
+    tempBoard.move(*it);
+    score = minmax(&tempBoard,nextPlayer(currentPlayer),d-1,alpha,beta);
+    if(currentPlayer == White)
+    {
+      // white to move, max
+      if(score >= beta)
+      {
+        return beta;
+      }
+      if(score > alpha)
+      {
+        alpha = score;
+      }
+    }
+    else
+    {
+      // black to move, min
+      if(score <= alpha)
+      {
+        return alpha;
+      }
+      if(score < beta)
+      {
+        beta = score;
+      }
+    }
+  }
+
+  if(currentPlayer == White)
+  {
+    return alpha;
+  }
+  else
+  {
+    return beta;
+  }
+
+  /*
   if(BoardUtils::isStalemate(board,currentPlayer,moves))
   {
     return 0;
@@ -90,6 +123,7 @@ int Opponent::minmax(const Board* board,Player currentPlayer,
   }
 
   return bestScore;
+  */
 }
 
 Move Opponent::getMove(const Board* board) const
@@ -115,7 +149,7 @@ Move Opponent::getMove(const Board* board) const
   {
     tempBoard.makeIntoCopyOf(*board);
     tempBoard.move(*it);
-    current = minmax(&tempBoard,nextPlayer(player),depth,bestScore);
+    current = minmax(&tempBoard,nextPlayer(player),depth,-100000,100000);
     if(isBetterThan(player,current,bestScore))
     {
       bestScore = current;

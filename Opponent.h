@@ -12,7 +12,7 @@ class Opponent
 
     static const int endSearchDepth;
 
-    int minmax(const Board*,Player,int,int) const;
+    int minmax(const Board*,Player,int,int,int) const;
 
     bool isBetterThan(Player,int,int) const;
     bool isBetterThanEqualTo(Player,int,int) const;

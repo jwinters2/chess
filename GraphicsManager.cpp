@@ -165,6 +165,18 @@ void GraphicsManager::renderBoardCS(const Board* board)
   if(gameOver)
   {
     text = gameOverText;
+
+    if(text.compare("Checkmate") == 0)
+    {
+      if(board->getPlayerToMove() == White)
+      {
+        text += ", Black Wins";
+      }
+      else
+      {
+        text += ", White Wins";
+      }
+    }
   }
 
   renderString(text,border_size,
@@ -172,13 +184,16 @@ void GraphicsManager::renderBoardCS(const Board* board)
                (textbox_size / 2) - (text_height / 2) );
 
   std::string playerToMove = "";
-  if(board->getPlayerToMove() == White)
+  if(!gameOver)
   {
-    playerToMove = "White to move";
-  }
-  else
-  {
-    playerToMove = "Black to move";
+    if(board->getPlayerToMove() == White)
+    {
+      playerToMove = "White to move";
+    }
+    else
+    {
+      playerToMove = "Black to move";
+    }
   }
   
   std::string statusText = "";
