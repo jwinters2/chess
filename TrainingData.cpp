@@ -529,6 +529,8 @@ void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
     {
       folderNum = (count / 10000) + 1;
       system(("mkdir training_data/set_" + intToString(folderNum)).c_str());
+      std::cout << "now writing to training_data/sub_";
+      std::cout << intToString(folderNum) << std::endl;
     }
 
     moveNum = (count % 10000) + 1;
