@@ -26,4 +26,5 @@ class TrainingData
     static Move convertNotation(Board*,std::string,bool&);
     static void printBoard(std::ostream&,const Board&);
     static void printMove(std::ostream&,const Move&);
+    static void saveToFile(std::ofstream&,bool,int&);
 };

@@ -24,6 +24,8 @@ void TrainingData::parse() const
   int gameCount = 1;
   char buffer[256];
 
+  outFile.open("training_data/move_" + intToString(gameCount) + ".data");
+
   for(int i=beginningIndex; i<endingIndex; i++)
   {
     currentFile.open(arguments[i]);
@@ -31,13 +33,6 @@ void TrainingData::parse() const
     {
       while(!currentFile.eof())
       {
-        std::string outFileName(clearPath(arguments[i]));
-        outFileName = outFileName.substr(0,outFileName.size()-4);
-        outFileName = "training_data/" + outFileName;
-        outFileName += "_game" + intToString(gameCount) + ".data";
-        std::cout << "writing to " << outFileName << std::endl;
-        outFile.open(outFileName);
-
         while(!currentFile.eof() && currentFile.peek() != '1')
         {
           #ifdef DEBUG_PRINT
@@ -51,9 +46,9 @@ void TrainingData::parse() const
 
         if(currentFile.eof())
         {
-          outFile.close();
           continue;
         }
+
 
         //whiteMove = currentWord;
         currentFile >> whiteMove;
@@ -84,6 +79,7 @@ void TrainingData::parse() const
           printBoard(outFile,board);
           printMove(outFile,move);
           board.makeIntoCopyOf(tempBoard);
+          saveToFile(outFile,success,gameCount);
 
           if(isEndingMove(blackMove))
           {
@@ -100,6 +96,7 @@ void TrainingData::parse() const
           printBoard(outFile,board);
           printMove(outFile,move);
           board.makeIntoCopyOf(tempBoard);
+          saveToFile(outFile,success,gameCount);
 
           if(whiteMove[0] == '[' || blackMove[0] == '[')
           {
@@ -108,21 +105,8 @@ void TrainingData::parse() const
         }
         while(currentFile >> whiteMove >> blackMove);
          
-        outFile.close();
-
-        // if the game was parsed successfully, increment the count
-        if(success)
-        {
-          gameCount++;
-        }
-        else
-        {
-          // otherwise, delete the file
-          remove(outFileName.c_str());
-        }
       }
       currentFile.close();
-      gameCount = 1;
     }
   }
 }
@@ -178,27 +162,14 @@ bool TrainingData::isInRange(char c,char a,char b)
 
 std::string TrainingData::intToString(int a)
 {
-  if(a > 99999)
+  std::string zeros = "00000000";
+  int temp = a;
+  while (temp != 0)
   {
-    return std::to_string(a);
+    zeros = zeros.substr(1,zeros.size()-1);
+    temp /= 10;
   }
-  if(a > 9999)
-  {
-    return "0" + std::to_string(a);
-  }
-  if(a > 999)
-  {
-    return "00" + std::to_string(a);
-  }
-  if(a > 99)
-  {
-    return "000" + std::to_string(a);
-  }
-  if(a > 9)
-  {
-    return "0000" + std::to_string(a);
-  }
-  return "00000" + std::to_string(a);
+  return zeros + std::to_string(a);
 }
 
 std::string TrainingData::clearPath(std::string str)
@@ -525,4 +496,28 @@ void TrainingData::printMove(std::ostream& out,const Move& m)
     out << std::endl;
   }
   out << std::endl;
+}
+
+void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
+{
+  if(out.is_open())
+  {
+    out.close();
+    std::string outFileName = "training_data/move_" + 
+                              intToString(count) + ".data";
+
+    // if the game was parsed successfully, increment the count
+    if(success)
+    {
+      count++;
+    }
+    else
+    {
+      // otherwise, delete the file
+      remove(outFileName.c_str());
+    }
+
+    outFileName = "training_data/move_" + intToString(count) + ".data";
+    out.open(outFileName);
+  }
 }
