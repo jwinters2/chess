@@ -11,6 +11,8 @@ class TrainingData
     TrainingData(int,int,char**);
     void parse() const;
 
+    static std::string intToString(int);
+
   private:
     char** arguments;
     int beginningIndex;
@@ -20,7 +22,6 @@ class TrainingData
     static void removeNumber(std::string&);
     static bool isEndingMove(std::string);
     static bool isInRange(char,char,char);
-    static std::string intToString(int);
     static std::string clearPath(std::string);
     static bool contains(std::string,char);
     static Move convertNotation(Board*,std::string,bool&);

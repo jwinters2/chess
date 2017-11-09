@@ -26,9 +26,10 @@ void TrainingData::parse() const
   char buffer[256];
 
   system( "mkdir training_data" );
-  system(("mkdir training_data/set_" + intToString(1)).c_str());
-  outFile.open("training_data/set_" + intToString(1) + "/move_" + 
-               intToString(gameCount) + ".data");
+  //system(("mkdir training_data/set_" + intToString(1)).c_str());
+  //outFile.open("training_data/set_" + intToString(1) + "/move_" + 
+  //             intToString(gameCount) + ".data");
+  outFile.open("training_data/set_" + intToString(1) + ".data");
 
   for(int i=beginningIndex; i<endingIndex; i++)
   {
@@ -506,12 +507,11 @@ void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
 {
   if(out.is_open())
   {
-    out.close();
-    int moveNum = (count % 10000) + 1;
+    //int moveNum = (count % 10000) + 1;
     int folderNum = (count / 10000) + 1;
     std::string outFileName = "training_data/set_" + 
-                              intToString(folderNum) + "/move_" +
-                              intToString(moveNum) + ".data";
+                              intToString(folderNum) + ".data";
+                              //intToString(moveNum) + ".data";
 
     // if the game was parsed successfully, increment the count
     if(success)
@@ -527,16 +527,17 @@ void TrainingData::saveToFile(std::ofstream& out,bool success,int& count)
     // make a new folder if we have to
     if(folderNum != (count / 10000) + 1)
     {
+      out.close();
+
       folderNum = (count / 10000) + 1;
-      system(("mkdir training_data/set_" + intToString(folderNum)).c_str());
+      //system(("mkdir training_data/set_" + intToString(folderNum)).c_str());
       std::cout << "now writing to training_data/set_";
       std::cout << intToString(folderNum) << std::endl;
+
+      outFileName = "training_data/set_" + intToString(folderNum) + ".data";
+                  //intToString(moveNum) + ".data";
+
+      out.open(outFileName);
     }
-
-    moveNum = (count % 10000) + 1;
-    outFileName = "training_data/set_" + intToString(folderNum) + "/move_" +
-                  intToString(moveNum) + ".data";
-
-    out.open(outFileName);
   }
 }
