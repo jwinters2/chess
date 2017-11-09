@@ -308,6 +308,8 @@ void Board::performSpecialMove(const int* begin,const int* end,SpecialMove sm)
       addScore(BoardUtils::getPieceScore(Queen) 
              - BoardUtils::getPieceScore(Pawn));
       break;
+    default:
+      break;
   }
 }
 

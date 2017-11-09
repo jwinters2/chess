@@ -14,9 +14,9 @@ class TrainingData
     static std::string intToString(int);
 
   private:
-    char** arguments;
     int beginningIndex;
     int endingIndex;
+    char** arguments;
 
     static bool beginsWith(std::string,std::string);
     static void removeNumber(std::string&);

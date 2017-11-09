@@ -131,7 +131,7 @@ Move Opponent::getMove(const Board* board) const
   // for each possible move, return the one with the highest score 
   std::vector<Move> moves = BoardUtils::getPossibleMoves(board,player);
 
-  int currentScore = board->getScore();
+  //int currentScore = board->getScore();
 
   Move bestMove;
   int bestScore = scoreLowerBound(player);

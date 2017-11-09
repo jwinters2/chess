@@ -17,11 +17,11 @@ class Board
     const int board_width;
     const int board_height;
 
+    Player playerToMove;
     int turn;
     int score;
     void addScore(int);
 
-    Player playerToMove;
     int move_begin[2];
     int move_end[2];
 

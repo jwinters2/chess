@@ -480,8 +480,9 @@ int BoardUtils::countPieceMoves (const Board* board,int s_x,int s_y)
       return countQueenMoves(board,s_x,s_y);
     case King:
       return countKingMoves(board,s_x,s_y);
+    default:
+      return 0;
   }
-  return 0;
 }
 
 int BoardUtils::countPawnMoves  (const Board* board,int s_x,int s_y)

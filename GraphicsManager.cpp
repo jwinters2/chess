@@ -306,7 +306,7 @@ int GraphicsManager::yGridToCoord(int y)
   return border_size + ((7-rotate(y)) * square_size);
 }
 
-bool GraphicsManager::setRotateOnBlack(bool r)
+void GraphicsManager::setRotateOnBlack(bool r)
 {
   rotateOnBlack = r;
 }
@@ -448,6 +448,8 @@ void GraphicsManager::renderPiece
       case King:
         tex_id = white_king;
         break;
+      default:
+        break;
     }
 
     if(board->getPlayer(x,y) == Player::Black)
@@ -466,7 +468,7 @@ void GraphicsManager::renderTexture(Texture t,const SDL_Rect* pos)
 
 void GraphicsManager::renderString(std::string str,int x,int y)
 {
-  for(int i=0; i<str.size(); i++)
+  for(unsigned int i=0; i<str.size(); i++)
   {
     renderCharacter(str.at(i),x + (i * text_spacing),y);
   }
@@ -529,6 +531,8 @@ void* GraphicsManager::renderInThread(void* args)
 
     SDL_Delay(100);
   }
+
+  return nullptr;
 }
 
 void* GraphicsManager::handleEvents(void* args)
@@ -666,6 +670,8 @@ void* GraphicsManager::handleEvents(void* args)
 
     SDL_Delay(10);
   }
+
+  return nullptr;
 }
 
 std::string GraphicsManager::getInput()
@@ -697,7 +703,7 @@ std::string GraphicsManager::getInput()
 
 Piece GraphicsManager::getPromotion()
 {
-  Piece retval;
+  Piece retval = Empty;
   bool ready = false;
   displayPromotionMenu = true;
 

@@ -45,7 +45,7 @@ class GraphicsManager
     static Piece getPromotion();
     static bool programTerminated();
 
-    static bool setRotateOnBlack(bool);
+    static void setRotateOnBlack(bool);
 
     static void setGameOver(std::string);
 

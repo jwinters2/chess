@@ -123,7 +123,7 @@ bool TrainingData::beginsWith(std::string a,std::string b)
     return false;
   }
 
-  for(int i=0; i<b.size(); i++)
+  for(unsigned int i=0; i<b.size(); i++)
   {
     if(a[i] != b[i])
     {
@@ -194,7 +194,7 @@ std::string TrainingData::clearPath(std::string str)
 
 bool TrainingData::contains(std::string str,char c)
 {
-  for(int i=0; i<str.size(); i++)
+  for(unsigned int i=0; i<str.size(); i++)
   {
     if(str[i] == c)
     {
@@ -213,7 +213,7 @@ Move TrainingData::convertNotation(Board* board,std::string str,bool& success)
 
   Move retval(-1,-1,-1,-1);
 
-  for(int i=0; i<str.size()-1; i++)
+  for(unsigned int i=0; i<str.size()-1; i++)
   {
     if(isInRange(str[i],'A','Z'))
     {
@@ -469,6 +469,8 @@ void TrainingData::printBoard(std::ostream& out,const Board& board)
             break;
           case King:
             out << "k";
+            break;
+          default:
             break;
         }
       }
